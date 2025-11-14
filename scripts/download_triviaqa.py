@@ -10,6 +10,7 @@ URL = "https://nlp.cs.washington.edu/triviaqa/data/triviaqa-rc.tar.gz"
 ARCHIVE_PATH = DATA_DIR / "triviaqa-rc.tar.gz"
 
 def main():
+    print("starting ...")
     # Download if not already there
     if not ARCHIVE_PATH.exists():
         print(f"Downloading {URL} ...")
