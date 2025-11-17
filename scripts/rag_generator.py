@@ -7,9 +7,9 @@ def generator(question, evidence):
     tokenizer = AutoTokenizer.from_pretrained("allenai/longformer-large-4096-finetuned-triviaqa")
     model = AutoModelForQuestionAnswering.from_pretrained("allenai/longformer-large-4096-finetuned-triviaqa")
 
-    question, text = "Who was Jim Henson?", "Jim Henson was a nice puppet"
+    
 
-    encoding = tokenizer(question, text, return_tensors="pt")
+    encoding = tokenizer(question, evidence, return_tensors="pt")
 
     input_ids = encoding["input_ids"]
 
@@ -34,5 +34,5 @@ def generator(question, evidence):
         tokenizer.convert_tokens_to_ids(answer_tokens)
 
     )  # remove space prepending space token
-    print(answer)
+    return answer
 
