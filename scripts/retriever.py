@@ -4,7 +4,7 @@ from langchain.text_splitter import RecursiveCharacterTextSplitter
 from get_triviaqa_huggingace import load_data
 
 def retriever(question, evidence):
-    docs = load_data()
+    docs = load_data("../necessary_parts_triviaqa/evidence/wikipedia")
     splitter = RecursiveCharacterTextSplitter(chunk_size=512, chunk_overlap=30)
     chunked_docs = splitter.split_documents(docs)
 
