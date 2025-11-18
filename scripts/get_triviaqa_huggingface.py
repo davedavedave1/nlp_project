@@ -4,10 +4,11 @@ from datasets import load_dataset
 
 
 def main():
-    #domains = get_dataset_config_names('trivia_qa')
-    #print(domains)
+    domains = get_dataset_config_names('trivia_qa')
+    print(domains)
     ds = load_dataset('trivia_qa', name="rc.wikipedia")
     simplified_ds = []
+    print(ds)
     #for tripel in ds["validation"]
         #simplified_ds
     print(ds["validation"]["question"])
