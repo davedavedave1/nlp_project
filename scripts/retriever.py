@@ -7,7 +7,7 @@ def retriever(question, evidence):
     docs = load_data("../necessary_parts_triviaqa/evidence/wikipedia")
     splitter = RecursiveCharacterTextSplitter(chunk_size=512, chunk_overlap=30)
     chunked_docs = splitter.split_documents(docs)
-
+    
     # this is the embeddings database
     db = FAISS.from_documents(
         chunked_docs, 
