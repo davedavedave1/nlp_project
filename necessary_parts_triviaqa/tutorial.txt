@@ -7,6 +7,6 @@ Execute the script create_partition.py from inside this folder (NOT FROM OUTSIDE
 ==> You will get the New Trainingdata (wikipedia-train_new.json) and the validation set (wikipedia-validation.json).
 We will Use verified-wikipedia-dev.json as our test data
 
-Also, copy the wikipedia evidence (whole folder) from the triviaqa dataset into the evidence folder in this folder.
+Also, create a folder named evidence in this folder. Then copy the wikipedia evidence (whole folder) from the triviaqa dataset into the evidence folder in this folder.
 
 Question for the Profs: Is verified-wikipedia-dev.json the right file because in the slides it says verified-wikipedia-test.json but i cant find that in the files from triviaqa
