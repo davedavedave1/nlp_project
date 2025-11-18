@@ -1,0 +1,10 @@
+Download the triviaqa dataset from: https://nlp.cs.washington.edu/triviaqa/data/triviaqa-rc.tar.gz
+
+Add the following files from triviaqa to this folder: wikipedia-train.json, verified-wikipedia.dev.json
+
+Execute the script create_partition.py from inside this folder (NOT FROM OUTSIDE OR IT WILL NOT WORK)
+
+==> You will get the New Trainingdata (wikipedia-train_new.json) and the validation set (wikipedia-validation.json).
+We will Use verified-wikipedia-dev.json as our test data
+
+Question for the Profs: Is verified-wikipedia-dev.json the right file because in the slides it says verified-wikipedia-test.json but i cant find that in the files from triviaqa
