@@ -18,6 +18,8 @@ def retriever(question, evidence):
         ]
     else:
         documents = docs
+
+    documents = documents[:1000]
     
     print(f"Total documents loaded: {len(documents)}")
     
@@ -29,7 +31,7 @@ def retriever(question, evidence):
     # this is the embeddings database
     db = FAISS.from_documents(
         chunked_docs, 
-        HuggingFaceEmbeddings(model_name='BAAI/bge-base-en-v1.5')
+        HuggingFaceEmbeddings(model_name='paraphrase-MiniLM-L3-v2')
     )
     
     print(f"Database created with {db.index.ntotal} vectors")
