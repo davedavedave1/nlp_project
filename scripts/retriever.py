@@ -7,8 +7,7 @@ from get_triviaqa_huggingace import load_data
 
 
 def retriever(question, evidence):
-    data = load_data()
-    # evidence = structure_evidence(evidencefolder)
+    docs = load_data("../necessary_parts_triviaqa/evidence/wikipedia")
     splitter = RecursiveCharacterTextSplitter(chunk_size=512, chunk_overlap=30)
     chunked_docs = splitter.split_documents(docs)
     # change docs to evidence 
