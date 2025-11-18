@@ -53,6 +53,12 @@ def retriever(question, evidence):
         print(f"{'='*60}")
         print(doc.page_content[:300])  # Print first 300 characters
         print("...")
+
+        INDEX_PATH = "faiss_index_store"
+
+        print(f"Saving index to {INDEX_PATH}...")
+        db.save_local(INDEX_PATH)
+        print("Index saved.")
     
     return retriever_obj, db
 
