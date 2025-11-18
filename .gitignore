@@ -1,3 +1,4 @@
 data/
 *.gz
 *.json
+necessary_parts_triviaqa/evidence/wikipedia
