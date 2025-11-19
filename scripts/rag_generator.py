@@ -1,9 +1,10 @@
  #Load model directly
+from langchain_huggingface import HuggingFaceEndpoint, ChatHuggingFace
 from transformers import AutoTokenizer, AutoModelForQuestionAnswering
+from langchain_core.messages import HumanMessage, SystemMessage
 import torch
 
-
-def generator(question, evidence):
+def longformer(question, evidence):
     tokenizer = AutoTokenizer.from_pretrained("allenai/longformer-large-4096-finetuned-triviaqa")
     model = AutoModelForQuestionAnswering.from_pretrained("allenai/longformer-large-4096-finetuned-triviaqa")
 
@@ -36,3 +37,24 @@ def generator(question, evidence):
     )  # remove space prepending space token
     return answer
 
+# Define a function to ask the LLM
+def ask(query, evidence, chat_model):
+    messages = [
+        SystemMessage(content = "You are a tour guide"),
+        HumanMessage(content = f"Answer the {query} based on the {evidence}")
+    ]
+    response = chat_model.invoke(messages)
+    return response
+
+def phi(question, evidence):
+    llm = HuggingFaceEndpoint(repo_id = "microsoft/Phi-3.5-mini-instruct", task = "text-generation")
+    chat_model = ChatHuggingFace(llm = llm)
+    query = question
+    response = ask(query, evidence, chat_model)
+    print(response)
+
+
+def generator(question, evidence):
+    #phi(question, evidence)
+    return longformer(question, evidence)
+    # phi(question, evidence)
