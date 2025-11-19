@@ -3,3 +3,4 @@ data/
 *.json
 necessary_parts_triviaqa/evidence/wikipedia
 faiss_index_store/
+databases/
