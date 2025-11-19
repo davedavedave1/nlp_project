@@ -16,26 +16,22 @@ def retriever(path_to_db, question):
         allow_dangerous_deserialization=True  # required in recent LangChain versions
     )
     
-    print(f"Database loaded with {db.index.ntotal} vectors")
+    #print(f"Database loaded with {db.index.ntotal} vectors")
     
     retriever_obj = db.as_retriever(
         search_type="similarity",
         search_kwargs={'k': 4}# return the 4 most similar docs
     )
     
-    print(f"\nSearching for: '{question}'")
+    #print(f"\nSearching for: '{question}'")
 
     results = retriever_obj.invoke(question)
 
-    print(results[0])
+    #print(results[0])
     
     return results
 
         
-
-        
-    
-    
 
 # Run the function
 if __name__ == "__main__":
