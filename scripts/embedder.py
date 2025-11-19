@@ -4,6 +4,7 @@ from langchain_text_splitters import RecursiveCharacterTextSplitter
 from langchain_core.documents import Document
 from load_data import load_data
 
+# run everything from main directory
 def embedder():
     docs = load_data("necessary_parts_triviaqa/evidence/wikipedia")
     embedding_model_name='paraphrase-MiniLM-L3-v2'
