@@ -2,5 +2,5 @@ data/
 *.gz
 *.json
 necessary_parts_triviaqa/evidence/wikipedia
-faiss_index_store/
+# faiss_index_store/
 databases/
