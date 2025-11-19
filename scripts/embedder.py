@@ -53,6 +53,6 @@ def embedder():
     db.save_local(INDEX_PATH)
     print("Index saved.")
 
-# Run the function
+# Run the function (just for testing)
 if __name__ == "__main__":
     embedder()

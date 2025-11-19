@@ -5,7 +5,7 @@ from rag_generator import generator
 from retriever import retriever
 
 
-def main(question):
+def rag_system(question):
     
     evidence=retriever("./databases/FAISS-DB_embeddingModel~paraphrase-MiniLM-L3-v2_chunkSize~512_chunkOverlap~30_TESTRUN_REDUCED_NUMBER_OF_DOCS", question)
     evidence_content = [doc.page_content for doc in evidence]
@@ -13,8 +13,10 @@ def main(question):
     #answer = generator(question, evidence)
 
     answer= generator(question, evidence_concat)
-    print("This is the answer: "+answer)
+    #print("This is the answer: "+answer)
     return answer
 
+
+#just for testing
 if __name__ == "__main__":
-    main("What is the capital of France?")
+    rag_system("What is the capital of France?")

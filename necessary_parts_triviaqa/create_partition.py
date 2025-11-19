@@ -4,7 +4,7 @@ import json
 
 # --- Input and output file paths ---
 INPUT_FILE = "wikipedia-train.json"
-OUTPUT_FILE_1 = "wikipedia-validation.json"   # first 7900 entries
+OUTPUT_FILE_1 = "wikipedia-development_new.json"   # first 7900 entries
 OUTPUT_FILE_2 = "wikipedia-train_new.json"   # remaining entries
 
 PARTITION_SIZE = 7900

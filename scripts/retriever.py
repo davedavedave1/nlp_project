@@ -6,8 +6,10 @@ from load_data import load_data
 
 def retriever(path_to_db, question):
     
+    model_name=path_to_db.split("_")[1].split("~")[1]#get the name of the model from the path so that we dont have to set it everytime we want to use a different embedding
+    #could be crashing if the model_name contains _ or ~
     
-    embeddings = HuggingFaceEmbeddings(model_name='paraphrase-MiniLM-L3-v2')
+    embeddings = HuggingFaceEmbeddings(model_name=model_name)
 
     # directory where the FAISS index was saved
     db = FAISS.load_local(
@@ -33,6 +35,6 @@ def retriever(path_to_db, question):
 
         
 
-# Run the function
+# Run the function for testing
 if __name__ == "__main__":
     results = retriever("./databases/FAISS-DB_embeddingModel~paraphrase-MiniLM-L3-v2_chunkSize~512_chunkOverlap~30_TESTRUN_REDUCED_NUMBER_OF_DOCS", "What is the capital of France?")
