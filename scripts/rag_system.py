@@ -13,8 +13,10 @@ def rag_system(question):
     #answer = generator(question, evidence)
 
     answer= generator(question, evidence_concat)
-    print("This is the answer: "+answer)
+    #print("This is the answer: "+answer)
     return answer
 
+
+#just for testing
 if __name__ == "__main__":
     rag_system("What is the capital of France?")
