@@ -3,16 +3,17 @@ from langchain_huggingface import HuggingFaceEmbeddings
 from langchain_text_splitters import RecursiveCharacterTextSplitter
 from langchain_core.documents import Document
 from load_data import load_data
+import torch  # ADD THIS
 
-# run everything from main directory
 def embedder():
     docs = load_data("necessary_parts_triviaqa/evidence/wikipedia")
-    embedding_model_name='paraphrase-MiniLM-L3-v2'
-    chunk_size=512
-    chunk_overlap=30
-    reduced_size=True
-
-    test_run_string=""
+    embedding_model_name = 'paraphrase-MiniLM-L3-v2'  # CHANGE: Faster model
+    chunk_size = 1024
+    chunk_overlap = 30
+    reduced_size = True
+    test_run_string = ""
+    
+    BATCH_SIZE = 2000  # Process 10k chunks at a time (adjust based on your RAM)
     
     # Convert dictionaries to Document objects
     if docs and isinstance(docs[0], dict):
@@ -20,39 +21,72 @@ def embedder():
             Document(
                 page_content=doc.get('text', '') or doc.get('content', '') or str(doc),
                 metadata=doc.get('metadata', {})
-            ) 
+            )
             for doc in docs
         ]
     else:
         documents = docs
-
-    #for testruns reduce the number of docs
+    
     if reduced_size:
-        documents = documents[:100]
-        test_run_string="_TESTRUN_REDUCED_NUMBER_OF_DOCS"
+        documents = documents[:10000]
+        test_run_string = "_TESTRUN_REDUCED_NUMBER_OF_DOCS"
     
     print(f"Total documents loaded: {len(documents)}")
     
     splitter = RecursiveCharacterTextSplitter(chunk_size=chunk_size, chunk_overlap=chunk_overlap)
     chunked_docs = splitter.split_documents(documents)
-    
     print(f"Total chunks created: {len(chunked_docs)}")
     
-    # this is the embeddings database
-    db = FAISS.from_documents(
-        chunked_docs, 
-        HuggingFaceEmbeddings(model_name=embedding_model_name)
+    # ADD: GPU Configuration
+    device = 'cuda' if torch.cuda.is_available() else 'cpu'
+    #encode_batch_size = 128 if device == 'cuda' else 32
+
+    encode_batch_size = 16   #recommended for my graphicscard ~ David
+    
+    print(f"\nUsing device: {device}")
+    if device == 'cuda':
+        print(f"GPU: {torch.cuda.get_device_name(0)}")
+    print()
+    
+    # CHANGE: Initialize embeddings model with GPU support
+    embeddings = HuggingFaceEmbeddings(
+        model_name=embedding_model_name,
+        model_kwargs={'device': device},  # ADD THIS
+        encode_kwargs={  # ADD THIS
+            'batch_size': encode_batch_size,
+            'normalize_embeddings': True
+        }
     )
+    
+    # Process in batches
+    db = None
+    total_batches = (len(chunked_docs) + BATCH_SIZE - 1) // BATCH_SIZE
+    
+    for i in range(0, len(chunked_docs), BATCH_SIZE):
+        batch = chunked_docs[i:i + BATCH_SIZE]
+        batch_num = i // BATCH_SIZE + 1
+        print(f"Processing batch {batch_num}/{total_batches} ({len(batch)} chunks)...")
+        
+        if db is None:
+            # Create initial database
+            db = FAISS.from_documents(batch, embeddings)
+        else:
+            # Create temporary database and merge
+            temp_db = FAISS.from_documents(batch, embeddings)
+            db.merge_from(temp_db)
+            del temp_db  # ADD: Free memory
+            print(f"Merged. Total vectors: {db.index.ntotal}")
+        
+        # ADD: Clear GPU cache
+        if device == 'cuda':
+            torch.cuda.empty_cache()
     
     print(f"Database created with {db.index.ntotal} vectors")
     
-
-    INDEX_PATH = "databases/FAISS-DB_embeddingModel~"+embedding_model_name+"_chunkSize~"+str(chunk_size)+"_chunkOverlap~"+str(chunk_overlap)+test_run_string
-
+    INDEX_PATH = f"databases/FAISS-DB_embeddingModel~{embedding_model_name}_chunkSize~{chunk_size}_chunkOverlap~{chunk_overlap}{test_run_string}"
     print(f"Saving index to {INDEX_PATH}...")
     db.save_local(INDEX_PATH)
     print("Index saved.")
 
-# Run the function (just for testing)
 if __name__ == "__main__":
     embedder()

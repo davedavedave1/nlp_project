@@ -63,4 +63,4 @@ def test_with_triviaqa(file_path):
 
 
 if __name__ == "__main__":
-    test_with_triviaqa("./necessary_parts_triviaqa/wikipedia-train_new.json")#53988 questions
+    test_with_triviaqa("./necessary_parts_triviaqa/wikipedia-development_new.json")#53988 questions
