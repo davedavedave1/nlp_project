@@ -10,7 +10,7 @@ def embedder():
     embedding_model_name = 'paraphrase-MiniLM-L3-v2'  # CHANGE: Faster model
     chunk_size = 1024
     chunk_overlap = 30
-    reduced_size = True
+    reduced_size = False
     test_run_string = ""
     
     BATCH_SIZE = 2000  # Process 10k chunks at a time (adjust based on your RAM)
