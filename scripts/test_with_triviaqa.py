@@ -1,5 +1,5 @@
 import json
-from rag_system import rag_system
+from rag_system import Rag_system
 
 
 
@@ -38,13 +38,16 @@ def test_with_triviaqa(file_path):
     questionsRight=0
     questionsWrong=0
 
+    rag = Rag_system()
+    
+
     
     for item in data["Data"]:
         print(item["Question"])
         print(item["Answer"]["NormalizedAliases"])#Maybe we dont have to take both => Take a look at the paper/docs of triviaqa
 
         solution=item["Answer"]
-        answer = normalize_answer(rag_system(item["Question"])) #put in lowercase and remove spaces in front and end
+        answer = normalize_answer(rag.run(item["Question"])) #put in lowercase and remove spaces in front and end
 
         print("Our answer is: "+answer)
         

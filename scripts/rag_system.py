@@ -1,22 +1,31 @@
 # Load model directly
 from transformers import AutoTokenizer, AutoModelForQuestionAnswering
 import torch
-from rag_generator import generator
-from retriever import retriever
+from rag_generator import Generator
+from retriever import Retriever
 
 
-def rag_system(question):
+class Rag_system:
     
-    evidence=retriever("./databases/FAISS-DB_embeddingModel~paraphrase-MiniLM-L3-v2_chunkSize~512_chunkOverlap~30_TESTRUN_REDUCED_NUMBER_OF_DOCS", question)
-    evidence_content = [doc.page_content for doc in evidence]
-    evidence_concat = " ".join(evidence_content)
-    #answer = generator(question, evidence)
+    def __init__(self):
+        print("Loading RAG-System...")
+        self.retr = Retriever("./databases/FAISS-DB_embeddingModel~paraphrase-MiniLM-L3-v2_chunkSize~1024_chunkOverlap~30")
+        self.gen = Generator()
+        print("RAG-System loaded...")
 
-    answer= generator(question, evidence_concat)
-    #print("This is the answer: "+answer)
-    return answer
+    def run(self, question):
+        evidence = self.retr.run(question)
+        evidence_content = [doc.page_content for doc in evidence]
+        evidence_concat = " ".join(evidence_content)
+        #answer = generator(question, evidence)
+        #print("This is the evidence we are working with: "+evidence_concat)
+
+        answer= self.gen.run(question, evidence_concat)
+        #print("This is the answer: "+answer)
+        return answer
 
 
 #just for testing
 if __name__ == "__main__":
-    rag_system("What is the capital of France?")
+    rag = Rag_system()
+    print("Answer: "+rag.run("What is the capital of france?"))

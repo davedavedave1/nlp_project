@@ -4,11 +4,10 @@ from transformers import AutoTokenizer, AutoModelForQuestionAnswering
 from langchain_core.messages import HumanMessage, SystemMessage
 import torch
 
-def longformer(question, evidence):
-    tokenizer = AutoTokenizer.from_pretrained("allenai/longformer-large-4096-finetuned-triviaqa")
-    model = AutoModelForQuestionAnswering.from_pretrained("allenai/longformer-large-4096-finetuned-triviaqa")
-
+def longformer(tokenizer, model, question, evidence):
     
+
+    #print("Lonngformer got this Question and Evidence: ("+question+","+evidence+")")
 
     encoding = tokenizer(question, evidence, return_tensors="pt")
 
@@ -23,7 +22,6 @@ def longformer(question, evidence):
     outputs = model(input_ids, attention_mask=attention_mask)
 
     start_logits = outputs.start_logits
-
     end_logits = outputs.end_logits
 
     all_tokens = tokenizer.convert_ids_to_tokens(input_ids[0].tolist())
@@ -54,7 +52,21 @@ def phi(question, evidence):
     print(response)
 
 
-def generator(question, evidence):
+#def generator(question, evidence):
     #phi(question, evidence)
-    return longformer(question, evidence)
+    #return longformer(question, evidence)
     # phi(question, evidence)
+
+
+
+class Generator:
+    def __init__(self):
+        print("Loading Generator...")
+        #longformer
+        self.tokenizer = AutoTokenizer.from_pretrained("allenai/longformer-large-4096-finetuned-triviaqa")
+        self.model = AutoModelForQuestionAnswering.from_pretrained("allenai/longformer-large-4096-finetuned-triviaqa")
+        print("Generator Loaded...")
+
+    def run(self, question, evidence):
+        return longformer(self.tokenizer, self.model, question, evidence)
+
