@@ -17,7 +17,10 @@ class Retriever:
         print("Retriever loaded.")
 
     def run(self, question):
-        return self.retriever.invoke(question)
+        print("Retriever working...")
+        evidence = self.retriever.invoke(question)
+        print("Retriever done...")
+        return evidence
 
 
 

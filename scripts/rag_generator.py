@@ -68,5 +68,8 @@ class Generator:
         print("Generator Loaded...")
 
     def run(self, question, evidence):
-        return longformer(self.tokenizer, self.model, question, evidence)
+        print("Generator working...")
+        answer = longformer(self.tokenizer, self.model, question, evidence)
+        print("Generator done")
+        return answer
 
