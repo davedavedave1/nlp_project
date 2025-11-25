@@ -37,12 +37,12 @@ def longformer(tokenizer, model, question, evidence):
     )  # remove space prepending space token
     return answer
 
-def phi(question, evidence):
-    llm = HuggingFaceEndpoint(repo_id = "microsoft/Phi-3.5-mini-instruct", task = "text-generation")
-    chat_model = ChatHuggingFace(llm = llm)
-    query = question
-    response = ask(query, evidence, chat_model)
-    print(response)
+# def phi(question, evidence):
+#     llm = HuggingFaceEndpoint(repo_id = "microsoft/Phi-3.5-mini-instruct", task = "text-generation")
+#     chat_model = ChatHuggingFace(llm = llm)
+#     query = question
+#     response = ask(query, evidence, chat_model)
+#     print(response)
 
 def ministral(question, evidence):
     model_repo_id = "mistralai/Mistral-7B-Instruct-v0.2"
@@ -81,15 +81,18 @@ class Phi:
     # Define a function to ask the LLM
     def ask(self, query, evidence):
         messages = [
-            SystemMessage(content = "You are a tour guide"),
+            SystemMessage(content = f"You are a tour guide. Just answer the queries based on {evidence}. If you don't have the information, you must say you don't know!"),
             HumanMessage(content = f"Answer the {query} based on the {evidence}")
         ]
         response = self.model.invoke(messages)
         return response
     
     def run(self, question, evidence):
+        print("Generator working...")
+        answer = self.ask(question, evidence)
+        print("Generator done")
+        return answer
         
-
 class Generator:
     def __init__(self):
         print("Loading longform Generator...")
