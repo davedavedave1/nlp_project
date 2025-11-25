@@ -4,6 +4,8 @@ from transformers import AutoTokenizer, AutoModelForQuestionAnswering
 from langchain_core.messages import HumanMessage, SystemMessage
 import torch
 
+# Might be more "best-practice" if we would implement this function in the Generator class as well
+# I think it would add more structure to our code but not I'm not sure about it
 def longformer(tokenizer, model, question, evidence):
     
 
@@ -35,15 +37,6 @@ def longformer(tokenizer, model, question, evidence):
     )  # remove space prepending space token
     return answer
 
-# Define a function to ask the LLM
-def ask(query, evidence, chat_model):
-    messages = [
-        SystemMessage(content = "You are a tour guide"),
-        HumanMessage(content = f"Answer the {query} based on the {evidence}")
-    ]
-    response = chat_model.invoke(messages)
-    return response
-
 def phi(question, evidence):
     llm = HuggingFaceEndpoint(repo_id = "microsoft/Phi-3.5-mini-instruct", task = "text-generation")
     chat_model = ChatHuggingFace(llm = llm)
@@ -57,15 +50,32 @@ def phi(question, evidence):
     #return longformer(question, evidence)
     # phi(question, evidence)
 
+class Phi:
+    def __init__(self):
+        print("Loading Phi Generator...")
+        llm = HuggingFaceEndpoint(repo_id = "microsoft/Phi-3.5-mini-instruct", task = "text-generation")
+        self.model = ChatHuggingFace(llm = llm)
+        print("Phi Fenerator Loaded...")
 
+    # Define a function to ask the LLM
+    def ask(self, query, evidence):
+        messages = [
+            SystemMessage(content = "You are a tour guide"),
+            HumanMessage(content = f"Answer the {query} based on the {evidence}")
+        ]
+        response = self.model.invoke(messages)
+        return response
+    
+    def run(self, question, evidence):
+        
 
 class Generator:
     def __init__(self):
-        print("Loading Generator...")
+        print("Loading longform Generator...")
         #longformer
         self.tokenizer = AutoTokenizer.from_pretrained("allenai/longformer-large-4096-finetuned-triviaqa")
         self.model = AutoModelForQuestionAnswering.from_pretrained("allenai/longformer-large-4096-finetuned-triviaqa")
-        print("Generator Loaded...")
+        print("Longform Generator Loaded...")
 
     def run(self, question, evidence):
         return longformer(self.tokenizer, self.model, question, evidence)
