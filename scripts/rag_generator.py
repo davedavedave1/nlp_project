@@ -51,6 +51,27 @@ def phi(question, evidence):
     response = ask(query, evidence, chat_model)
     print(response)
 
+def ministral(question, evidence):
+    model_repo_id = "mistralai/Mistral-7B-Instruct-v0.2"
+
+    llm = HuggingFaceEndpoint(
+        repo_id=model_repo_id,
+        task="text-generation",
+        max_new_tokens=128,
+        temperature=0.1
+    )
+
+    chat_model = ChatHuggingFace(llm=llm)
+    print(f"Invoking Chat Model: {model_repo_id}")
+    query = question
+
+    try:
+        response = ask(query, evidence, chat_model)
+        # print("RESPONSE: ", response.content)
+        return response.content if hasattr(response, "content") else str(response)
+    except Exception as e:
+        return f"Error communicating with HF API: {e}"
+
 
 #def generator(question, evidence):
     #phi(question, evidence)
@@ -69,7 +90,8 @@ class Generator:
 
     def run(self, question, evidence):
         print("Generator working...")
-        answer = longformer(self.tokenizer, self.model, question, evidence)
+        # answer = longformer(self.tokenizer, self.model, question, evidence)
+        answer = ministral(question, evidence)
         print("Generator done")
         return answer
 
