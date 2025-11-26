@@ -3,6 +3,11 @@ from langchain_huggingface import HuggingFaceEndpoint, ChatHuggingFace
 from transformers import AutoTokenizer, AutoModelForQuestionAnswering
 from langchain_core.messages import HumanMessage, SystemMessage
 import torch
+import os
+from dotenv import load_dotenv
+
+# Load environment variables from .env file
+load_dotenv()
 
 # Might be more "best-practice" if we would implement this function in the Generator class as well
 # I think it would add more structure to our code but not I'm not sure about it
@@ -64,26 +69,91 @@ def ministral(question, evidence):
     #return longformer(question, evidence)
     # phi(question, evidence)
 
+class Mistral:
+    def __init__(self):
+        print("Loading Mistral Generator...")     
+        model_repo_id = "mistralai/Mistral-7B-Instruct-v0.2"
+
+        self.llm = HuggingFaceEndpoint(
+            repo_id=model_repo_id,
+            task="text-generation",
+            max_new_tokens=128,
+            temperature=0.1
+        )
+        self.chat_model = ChatHuggingFace(llm=self.llm)
+        print("Mistral Generator Loaded.")
+
+    def run(self, question, evidence):
+        print(f"Generator working on: {question}...")
+        
+        # --- MISTRAL PROMPT FORMAT ---
+        # Mistral expects instructions inside [INST] tags.
+        # We combine the Persona (System) and Data (Context) into one block.
+        
+        prompt = (
+            f"[INST] You are a helpful tour guide. "
+            f"Answer the user's question strictly based on the context provided below. "
+            f"If the answer is not in the context, simply say 'I don't know'.\n\n"
+            f"Context: {evidence}\n\n"
+            f"Question: {question} [/INST]"
+        )
+        try:
+            # Invoke the model directly with the string prompt
+            response = self.chat_model.invoke(prompt)
+            return response
+        except Exception as e:
+            return f"Error connecting to Mistral: {e}"
+
+# mistral = Mistral()
+# print(mistral.run("What is the capital of Germany?", "France is a country. Its capital is Paris."))
+# print(mistral.run("What is the capital of France?", "France is a country. Its capital is Paris."))
+
 class Phi:
     def __init__(self):
         print("Loading Phi Generator...")
-        llm = HuggingFaceEndpoint(
-            repo_id = "microsoft/Phi-3.5-mini-instruct",
-            task = "text-generation",
+        
+        repo_id = "microsoft/Phi-3-mini-4k-instruct"
+
+        # --- THE FIX ---
+        # We explicitly tell it the URL so it doesn't have to search for it.
+        # This prevents the StopIteration error.
+        endpoint_url = f"https://router.huggingface.co/models/{repo_id}"
+
+        self.llm = HuggingFaceEndpoint(
+            endpoint_url=endpoint_url, # <--- CRITICAL CHANGE
+            task="text-generation",
             max_new_tokens=512,
-            temperature=0.1
-            )
-        self.model = ChatHuggingFace(llm = llm)
-        print("Phi Fenerator Loaded...")
+            temperature=0.1,
+            huggingfacehub_api_token=os.environ.get("HUGGINGFACEHUB_API_TOKEN")
+        )
+        print("Phi Generator Loaded.")
+
+    def ask(self, query, evidence):
+        # 2. MANUALLY FORMAT THE PROMPT
+        # Phi-3 specific format: <|system|>...<|end|><|user|>...<|end|><|assistant|>
+        
+        prompt = (
+            f"<|system|>\n"
+            f"You are a tour guide. Answer based strictly on the evidence provided. "
+            f"If you don't know, say so.<|end|>\n"
+            f"<|user|>\n"
+            f"Context: {evidence}\nQuestion: {query}<|end|>\n"
+            f"<|assistant|>"
+        )
+
+        # 3. Invoke the endpoint directly with the string
+        response_text = self.llm.invoke(prompt)
+        
+        return response_text
 
     # Define a function to ask the LLM
-    def ask(self, query, evidence):
-        messages = [
-            SystemMessage(content = f"You are a tour guide. Just answer the queries based on the evidence I provided you. If you don't have the information, you must say you don't know!"),
-            HumanMessage(content = f"Answer the {query} based on the {evidence}")
-        ]
-        response = self.model.invoke(messages)
-        return response.content
+    # def ask(self, query, evidence):
+    #     messages = [
+    #         SystemMessage(content = f"You are a tour guide. Just answer the queries based on the evidence I provided you. If you don't have the information, you must say you don't know!"),
+    #         HumanMessage(content = f"Answer the {query} based on the {evidence}")
+    #     ]
+    #     response = self.model.invoke(messages)
+    #     return response.content
     
     def run(self, question, evidence):
         print("Generator working...")
