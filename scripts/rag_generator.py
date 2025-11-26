@@ -42,32 +42,6 @@ def longformer(tokenizer, model, question, evidence):
     )  # remove space prepending space token
     return answer
 
-def ministral(question, evidence):
-    model_repo_id = "mistralai/Mistral-7B-Instruct-v0.2"
-
-    llm = HuggingFaceEndpoint(
-        repo_id=model_repo_id,
-        task="text-generation",
-        max_new_tokens=128,
-        temperature=0.1
-    )
-
-    chat_model = ChatHuggingFace(llm=llm)
-    print(f"Invoking Chat Model: {model_repo_id}")
-    query = question
-
-    try:
-        response = ask(query, evidence, chat_model)
-        # print("RESPONSE: ", response.content)
-        return response.content if hasattr(response, "content") else str(response)
-    except Exception as e:
-        return f"Error communicating with HF API: {e}"
-
-
-#def generator(question, evidence):
-    #phi(question, evidence)
-    #return longformer(question, evidence)
-    # phi(question, evidence)
 
 class Mistral:
     def __init__(self):
@@ -86,10 +60,6 @@ class Mistral:
     def run(self, question, evidence):
         print(f"Generator working on: {question}...")
         
-        # --- MISTRAL PROMPT FORMAT ---
-        # Mistral expects instructions inside [INST] tags.
-        # We combine the Persona (System) and Data (Context) into one block.
-        
         prompt = (
             f"[INST] You are a helpful tour guide. "
             f"Answer the user's question strictly based on the context provided below. "
@@ -98,7 +68,6 @@ class Mistral:
             f"Question: {question} [/INST]"
         )
         try:
-            # Invoke the model directly with the string prompt
             response = self.chat_model.invoke(prompt)
             return response
         except Exception as e:
@@ -145,15 +114,6 @@ class Phi:
         response_text = self.llm.invoke(prompt)
         
         return response_text
-
-    # Define a function to ask the LLM
-    # def ask(self, query, evidence):
-    #     messages = [
-    #         SystemMessage(content = f"You are a tour guide. Just answer the queries based on the evidence I provided you. If you don't have the information, you must say you don't know!"),
-    #         HumanMessage(content = f"Answer the {query} based on the {evidence}")
-    #     ]
-    #     response = self.model.invoke(messages)
-    #     return response.content
     
     def run(self, question, evidence):
         print("Generator working...")
@@ -176,3 +136,30 @@ class Generator:
         print("Generator done")
         return answer
 
+
+#def generator(question, evidence):
+    #phi(question, evidence)
+    #return longformer(question, evidence)
+    # phi(question, evidence)
+
+
+def ministral(question, evidence):
+    model_repo_id = "mistralai/Mistral-7B-Instruct-v0.2"
+
+    llm = HuggingFaceEndpoint(
+        repo_id=model_repo_id,
+        task="text-generation",
+        max_new_tokens=128,
+        temperature=0.1
+    )
+
+    chat_model = ChatHuggingFace(llm=llm)
+    print(f"Invoking Chat Model: {model_repo_id}")
+    query = question
+
+    try:
+        response = ask(query, evidence, chat_model)
+        # print("RESPONSE: ", response.content)
+        return response.content if hasattr(response, "content") else str(response)
+    except Exception as e:
+        return f"Error communicating with HF API: {e}"
