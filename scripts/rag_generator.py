@@ -1,16 +1,125 @@
  #Load model directly
+from dotenv import load_dotenv
+import os
+from openai import OpenAI
 from langchain_huggingface import HuggingFaceEndpoint, ChatHuggingFace
-from transformers import AutoTokenizer, AutoModelForQuestionAnswering
+from transformers import AutoTokenizer, AutoModelForQuestionAnswering, AutoModelForSeq2SeqLM, BitsAndBytesConfig
 from langchain_core.messages import HumanMessage, SystemMessage
 import torch
-import os
-from dotenv import load_dotenv
 
-# Load environment variables from .env file
-load_dotenv()
 
-# Might be more "best-practice" if we would implement this function in the Generator class as well
-# I think it would add more structure to our code but not I'm not sure about it
+load_dotenv()  
+
+api_key = os.getenv("OPENAI_API_KEY")
+
+
+
+class Generator:
+    def __init__(self):
+        
+        
+        print("Loading Generator...")
+
+
+
+        #flan-t5-large
+
+        
+        print("Loading google/flan-t5-large Generator...")
+
+
+        bnb_config = BitsAndBytesConfig(
+            load_in_8bit=True,      # or load_in_4bit=True
+            llm_int8_threshold=6.0,
+            llm_int8_has_fp16_weight=False,
+        )
+
+        flan_t5_large_model_name = "google/flan-t5-small"
+
+        self.flan_t5_large_tokenizer = AutoTokenizer.from_pretrained(flan_t5_large_model_name)
+        self.flan_t5_large_model = AutoModelForSeq2SeqLM.from_pretrained(
+                                                                            flan_t5_large_model_name,
+                                                                            quantization_config=bnb_config,        # OR load_in_4bit=True (requires bitsandbytes >= 0.39)
+                                                                        )
+        print("google/flan-t5-large Generator loaded.")
+
+
+        #longformer
+        print("Loading longform Generator...")
+        
+        self.longformer_tokenizer = AutoTokenizer.from_pretrained("allenai/longformer-large-4096-finetuned-triviaqa")
+        self.longformer_model = AutoModelForQuestionAnswering.from_pretrained("allenai/longformer-large-4096-finetuned-triviaqa")
+        print("Longform Generator Loaded...")
+
+
+
+
+
+
+        
+        print("Loading ChatGPT-5 Nano Generator...")
+
+        # Initialize OpenAI client
+        self.client = OpenAI()
+
+        # Model name (class = Mistral)
+        self.model_name = "gpt-5-nano"
+
+        print("ChatGPT-5 Nano Generator Loaded.")
+
+        print("Generator Loaded.")
+
+    def run(self, question, evidence):
+        print("Generator working...")
+
+        # answer = longformer(self.longformer_tokenizer, self.longformer_model, question, evidence)
+
+        # answer=five_nano(self,question,evidence)
+
+        answer = flan_t5_large(self.flan_t5_large_tokenizer, self.flan_t5_large_model, question, evidence)
+
+        print("Generator done...")
+        return answer
+
+
+def five_nano(self, question, evidence):
+    try:
+        response = self.client.chat.completions.create(
+            model=self.model_name,
+            messages=[
+                {
+                    "role": "system",
+                    "content": (
+                        "You are a precise assistant for a retrieval-augmented system. "
+                        "Answer the user's question strictly based on the provided context. "
+                        "Do NOT add any information that is not in the context. "
+                        "If the answer is not present in the context, reply exactly 'I don't know'. "
+                        "Do NOT provide explanations or extra commentary. "
+                        "Answer concisely and only with the answer."
+                        
+                    )
+                },
+                {
+                    "role": "user",
+                    "content": (
+                        f"Context: {evidence}\n\n"
+                        f"Question: {question}"
+                    )
+                }
+            ],
+            max_completion_tokens=1000,  # short limit to avoid extra text
+            top_p=1.0,        # use full probability distribution
+            n=1               # one response only
+            )
+        print("Generator done")
+        print(response.choices[0])
+        return response.choices[0].message.content
+
+    except Exception as e:
+        return f"Error connecting to ChatGPT-5 Nano: {e}"
+
+
+
 def longformer(tokenizer, model, question, evidence):
     
 
@@ -42,124 +151,30 @@ def longformer(tokenizer, model, question, evidence):
     )  # remove space prepending space token
     return answer
 
+def flan_t5_large(tokenizer, model, question, evidence):
+    # Example prompt
+    prompt = """You are a precise assistant for a retrieval-augmented system. 
+                Answer the user's question strictly based on the provided context. 
+                Do NOT add any information that is not in the context. 
+                If the answer is not present in the context, reply exactly 'I don't know'. 
+                Do NOT provide explanations or extra commentary.
+                Answer concisely and only with the answer.
+                Context: """+ evidence + "Question: "+ question
+                        
 
-class Mistral:
-    def __init__(self):
-        print("Loading Mistral Generator...")     
-        model_repo_id = "mistralai/Mistral-7B-Instruct-v0.2"
+    inputs = tokenizer(prompt, return_tensors="pt").to(model.device)
+    outputs = model.generate(**inputs, max_new_tokens=100)
 
-        self.llm = HuggingFaceEndpoint(
-            repo_id=model_repo_id,
-            task="text-generation",
-            max_new_tokens=128,
-            temperature=0.1
-        )
-        self.chat_model = ChatHuggingFace(llm=self.llm)
-        print("Mistral Generator Loaded.")
+    return tokenizer.decode(outputs[0], skip_special_tokens=True)
 
-    def run(self, question, evidence):
-        print(f"Generator working on: {question}...")
+
+
+
+            
         
-        prompt = (
-            f"[INST] You are a helpful tour guide. "
-            f"Answer the user's question strictly based on the context provided below. "
-            f"If the answer is not in the context, simply say 'I don't know'.\n\n"
-            f"Context: {evidence}\n\n"
-            f"Question: {question} [/INST]"
-        )
-        try:
-            response = self.chat_model.invoke(prompt)
-            return response
-        except Exception as e:
-            return f"Error connecting to Mistral: {e}"
-
-# mistral = Mistral()
-# print(mistral.run("What is the capital of Germany?", "France is a country. Its capital is Paris."))
-# print(mistral.run("What is the capital of France?", "France is a country. Its capital is Paris."))
-
-class Phi:
-    def __init__(self):
-        print("Loading Phi Generator...")
         
-        repo_id = "microsoft/Phi-3-mini-4k-instruct"
-
-        # --- THE FIX ---
-        # We explicitly tell it the URL so it doesn't have to search for it.
-        # This prevents the StopIteration error.
-        endpoint_url = f"https://router.huggingface.co/models/{repo_id}"
-
-        self.llm = HuggingFaceEndpoint(
-            endpoint_url=endpoint_url, # <--- CRITICAL CHANGE
-            task="text-generation",
-            max_new_tokens=512,
-            temperature=0.1,
-            huggingfacehub_api_token=os.environ.get("HUGGINGFACEHUB_API_TOKEN")
-        )
-        print("Phi Generator Loaded.")
-
-    def ask(self, query, evidence):
-        # 2. MANUALLY FORMAT THE PROMPT
-        # Phi-3 specific format: <|system|>...<|end|><|user|>...<|end|><|assistant|>
         
-        prompt = (
-            f"<|system|>\n"
-            f"You are a tour guide. Answer based strictly on the evidence provided. "
-            f"If you don't know, say so.<|end|>\n"
-            f"<|user|>\n"
-            f"Context: {evidence}\nQuestion: {query}<|end|>\n"
-            f"<|assistant|>"
-        )
 
-        # 3. Invoke the endpoint directly with the string
-        response_text = self.llm.invoke(prompt)
+
+
         
-        return response_text
-    
-    def run(self, question, evidence):
-        print("Generator working...")
-        answer = self.ask(question, evidence)
-        print("Generator done")
-        return answer
-        
-class Generator:
-    def __init__(self):
-        print("Loading longform Generator...")
-        #longformer
-        self.tokenizer = AutoTokenizer.from_pretrained("allenai/longformer-large-4096-finetuned-triviaqa")
-        self.model = AutoModelForQuestionAnswering.from_pretrained("allenai/longformer-large-4096-finetuned-triviaqa")
-        print("Longform Generator Loaded...")
-
-    def run(self, question, evidence):
-        print("Generator working...")
-        # answer = longformer(self.tokenizer, self.model, question, evidence)
-        answer = ministral(question, evidence)
-        print("Generator done")
-        return answer
-
-
-#def generator(question, evidence):
-    #phi(question, evidence)
-    #return longformer(question, evidence)
-    # phi(question, evidence)
-
-
-def ministral(question, evidence):
-    model_repo_id = "mistralai/Mistral-7B-Instruct-v0.2"
-
-    llm = HuggingFaceEndpoint(
-        repo_id=model_repo_id,
-        task="text-generation",
-        max_new_tokens=128,
-        temperature=0.1
-    )
-
-    chat_model = ChatHuggingFace(llm=llm)
-    print(f"Invoking Chat Model: {model_repo_id}")
-    query = question
-
-    try:
-        response = ask(query, evidence, chat_model)
-        # print("RESPONSE: ", response.content)
-        return response.content if hasattr(response, "content") else str(response)
-    except Exception as e:
-        return f"Error communicating with HF API: {e}"

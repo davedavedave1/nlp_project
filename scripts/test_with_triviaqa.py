@@ -42,7 +42,7 @@ def test_with_triviaqa(file_path):
     
 
     
-    for item in data["Data"]:
+    for item in (data["Data"][:100]):
         print(item["Question"])
         print(item["Answer"]["NormalizedAliases"])#Maybe we dont have to take both => Take a look at the paper/docs of triviaqa
 

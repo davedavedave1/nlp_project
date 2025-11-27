@@ -1,0 +1,8 @@
+prompt = (
+            f"[INST] You are supposed to give Answers based ONLY on a given Context. ONLY write the answer. Nothing more. DO NOT write a coherent sentence, just the answer."
+            f"For example, if the answer to a given question is blue, your output should ONLY be blue. It should NOT be something like the answer is blue."
+            f"The answer WILL be compared with a list of possible answers. So add no more unnecessary information to your output."
+            f"If the answer is not in the context, just give an empty string.\n\n"
+            f"Context: {evidence}\n\n"
+            f"Question: {question} [/INST]"
+        )

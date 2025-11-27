@@ -8,7 +8,7 @@ import torch  # ADD THIS
 def embedder():
     docs = load_data("necessary_parts_triviaqa/evidence/wikipedia")
     embedding_model_name = 'paraphrase-MiniLM-L3-v2'  # CHANGE: Faster model
-    chunk_size = 1024
+    chunk_size = 128
     chunk_overlap = 30
     reduced_size = False
     test_run_string = ""
