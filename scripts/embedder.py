@@ -5,11 +5,11 @@ from langchain_core.documents import Document
 from load_data import load_data
 import torch  # ADD THIS
 
-def embedder():
+def embedder(chunk_size, chunk_overlap):
     docs = load_data("necessary_parts_triviaqa/evidence/wikipedia")
     embedding_model_name = 'paraphrase-MiniLM-L3-v2'  # CHANGE: Faster model
-    chunk_size = 128
-    chunk_overlap = 30
+    chunk_size = chunk_size#256
+    chunk_overlap = chunk_overlap#30
     reduced_size = False
     test_run_string = ""
     
@@ -89,4 +89,8 @@ def embedder():
     print("Index saved.")
 
 if __name__ == "__main__":
-    embedder()
+    #embedder(512,30)
+    #embedder(2048,30)
+    #embedder(4096,30)
+    #embedder(8192,30)
+    #embedder(128,30)

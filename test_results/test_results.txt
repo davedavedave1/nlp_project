@@ -1,0 +1,123 @@
+RetrieverDB: FAISS-DB_embeddingModel~paraphrase-MiniLM-L3-v2_chunkSize~1024_chunkOverlap~30
+Generator: google/flan-t5-small 
+prompt = """You are a precise assistant for a retrieval-augmented system. 
+                Answer the user's question strictly based on the provided context. 
+                Do NOT add any information that is not in the context. 
+                If the answer is not present in the context, reply exactly 'I don't know'. 
+                Do NOT provide explanations or extra commentary.
+                Answer concisely and only with the answer.
+                Context: """+ evidence + "Question: "+ question
+Notes: took the 8 most similar results from the evidence
+Score: questions asked: 1000 Right Answers: 233 (23.3 percent) runtime long
+
+
+
+
+
+
+RetrieverDB: FAISS-DB_embeddingModel~paraphrase-MiniLM-L3-v2_chunkSize~1024_chunkOverlap~30
+Generator: google/flan-t5-small 
+prompt = """You are a precise assistant for a retrieval-augmented system. 
+                Answer the user's question strictly based on the provided context. 
+                Do NOT add any information that is not in the context. 
+                If the answer is not present in the context, reply exactly 'I don't know'. 
+                Do NOT provide explanations or extra commentary.
+                Answer concisely and only with the answer.
+                Context: """+ evidence + "Question: "+ question
+Notes: took the 4 most similar results from the evidence
+Score: questions asked: 1000 Right Answers: 228 (22.8 percent) runtime roughly 17 minutes
+
+
+RetrieverDB: FAISS-DB_embeddingModel~paraphrase-MiniLM-L3-v2_chunkSize~1024_chunkOverlap~30
+Generator: google/flan-t5-small 
+prompt = """You are a precise assistant for a retrieval-augmented system. 
+                Answer the user's question strictly based on the provided context. 
+                Do NOT add any information that is not in the context. 
+                If the answer is not present in the context, reply exactly 'I don't know'. 
+                Do NOT provide explanations or extra commentary.
+                Answer concisely and only with the answer.
+                Context: """+ evidence + "Question: "+ question
+Notes: took the 2 most similar results from the evidence
+Score: questions asked: 1000 Right Answers: 200 (20 percent) 
+
+
+RetrieverDB: FAISS-DB_embeddingModel~paraphrase-MiniLM-L3-v2_chunkSize~1024_chunkOverlap~30
+Generator: google/flan-t5-small 
+prompt = """You are a precise assistant for a retrieval-augmented system. 
+                Answer the user's question strictly based on the provided context. 
+                Do NOT add any information that is not in the context. 
+                If the answer is not present in the context, reply exactly 'I don't know'. 
+                Do NOT provide explanations or extra commentary.
+                Answer concisely and only with the answer.
+                Context: """+ evidence + "Question: "+ question
+Notes: took the 1 most similar results from the evidence
+Score: questions asked: 1000 Right Answers: 186 (18.6 percent) runtime roughly 14 minutes
+
+
+
+RetrieverDB: FAISS-DB_embeddingModel~paraphrase-MiniLM-L3-v2_chunkSize~512_chunkOverlap~30
+Generator: google/flan-t5-small 
+prompt = """You are a precise assistant for a retrieval-augmented system. 
+                Answer the user's question strictly based on the provided context. 
+                Do NOT add any information that is not in the context. 
+                If the answer is not present in the context, reply exactly 'I don't know'. 
+                Do NOT provide explanations or extra commentary.
+                Answer concisely and only with the answer.
+                Context: """+ evidence + "Question: "+ question
+Notes: took the 16 most similar results from the evidence chunksize 512
+Score: questions asked: 1000 Right Answers: 222 (22.2 percent) 
+
+RetrieverDB: FAISS-DB_embeddingModel~paraphrase-MiniLM-L3-v2_chunkSize~512_chunkOverlap~30
+Generator: google/flan-t5-small 
+prompt = """You are a precise assistant for a retrieval-augmented system. 
+                Answer the user's question strictly based on the provided context. 
+                Do NOT add any information that is not in the context. 
+                If the answer is not present in the context, reply exactly 'I don't know'. 
+                Do NOT provide explanations or extra commentary.
+                Answer concisely and only with the answer.
+                Context: """+ evidence + "Question: "+ question
+Notes: took the 2 most similar results from the evidence chunksize 512
+Score: questions asked: 1000 Right Answers: 197 (19.7 percent) 
+
+RetrieverDB: FAISS-DB_embeddingModel~paraphrase-MiniLM-L3-v2_chunkSize~1024_chunkOverlap~30
+Generator: google/flan-t5-small 
+prompt = """You are a precise assistant for a retrieval-augmented system. 
+                Answer the user's question strictly based on the provided context. 
+                Do NOT add any information that is not in the context. 
+                If the answer is not present in the context, reply exactly 'I don't know'. 
+                Do NOT provide explanations or extra commentary.
+                Answer concisely and only with the answer.
+                Context: """+ evidence + "Question: "+ question
+Notes: ran with a test evidence that does not contain information to see if the ai knows stuff by itself.
+Score: questions asked: 1000 Right Answers: 12 (1.2 percent) runtime roughly 18 minutes
+
+
+Used db: ./databases/FAISS-DB_embeddingModel~paraphrase-MiniLM-L3-v2_chunkSize~256_chunkOverlap~30 How many docs were retrieved: 1 questions asked: 1000 Right Answers: 151 
+Used db: ./databases/FAISS-DB_embeddingModel~paraphrase-MiniLM-L3-v2_chunkSize~256_chunkOverlap~30 How many docs were retrieved: 2 questions asked: 1000 Right Answers: 182
+Used db: ./databases/FAISS-DB_embeddingModel~paraphrase-MiniLM-L3-v2_chunkSize~256_chunkOverlap~30 How many docs were retrieved: 4 questions asked: 1000 Right Answers: 196 
+Used db: ./databases/FAISS-DB_embeddingModel~paraphrase-MiniLM-L3-v2_chunkSize~256_chunkOverlap~30 How many docs were retrieved: 8 questions asked: 1000 Right Answers: 212 
+Used db: ./databases/FAISS-DB_embeddingModel~paraphrase-MiniLM-L3-v2_chunkSize~256_chunkOverlap~30 How many docs were retrieved: 16 questions asked: 1000 Right Answers: 210
+Used db: ./databases/FAISS-DB_embeddingModel~paraphrase-MiniLM-L3-v2_chunkSize~256_chunkOverlap~30 How many docs were retrieved: 32 questions asked: 1000 Right Answers: 231
+
+Used db: ./databases/FAISS-DB_embeddingModel~paraphrase-MiniLM-L3-v2_chunkSize~512_chunkOverlap~30 How many docs were retrieved: 1 questions asked: 1000 Right Answers: 170 
+Used db: ./databases/FAISS-DB_embeddingModel~paraphrase-MiniLM-L3-v2_chunkSize~512_chunkOverlap~30 How many docs were retrieved: 2 questions asked: 1000 Right Answers: 197 
+Used db: ./databases/FAISS-DB_embeddingModel~paraphrase-MiniLM-L3-v2_chunkSize~512_chunkOverlap~30 How many docs were retrieved: 4 questions asked: 1000 Right Answers: 223 
+Used db: ./databases/FAISS-DB_embeddingModel~paraphrase-MiniLM-L3-v2_chunkSize~512_chunkOverlap~30 How many docs were retrieved: 8 questions asked: 1000 Right Answers: 220
+Used db: ./databases/FAISS-DB_embeddingModel~paraphrase-MiniLM-L3-v2_chunkSize~512_chunkOverlap~30 How many docs were retrieved: 16 questions asked: 1000 Right Answers: 222  
+
+Used db: ./databases/FAISS-DB_embeddingModel~paraphrase-MiniLM-L3-v2_chunkSize~1024_chunkOverlap~30 How many docs were retrieved: 1 questions asked: 1000 Right Answers: 186  
+Used db: ./databases/FAISS-DB_embeddingModel~paraphrase-MiniLM-L3-v2_chunkSize~1024_chunkOverlap~30 How many docs were retrieved: 2 questions asked: 1000 Right Answers: 200 
+Used db: ./databases/FAISS-DB_embeddingModel~paraphrase-MiniLM-L3-v2_chunkSize~1024_chunkOverlap~30 How many docs were retrieved: 4 questions asked: 1000 Right Answers: 228  
+Used db: ./databases/FAISS-DB_embeddingModel~paraphrase-MiniLM-L3-v2_chunkSize~1024_chunkOverlap~30 How many docs were retrieved: 8 questions asked: 1000 Right Answers: 233  
+
+Used db: ./databases/FAISS-DB_embeddingModel~paraphrase-MiniLM-L3-v2_chunkSize~2048_chunkOverlap~30 How many docs were retrieved: 1 questions asked: 1000 Right Answers: 175 
+Used db: ./databases/FAISS-DB_embeddingModel~paraphrase-MiniLM-L3-v2_chunkSize~2048_chunkOverlap~30 How many docs were retrieved: 2 questions asked: 1000 Right Answers: 201 
+Used db: ./databases/FAISS-DB_embeddingModel~paraphrase-MiniLM-L3-v2_chunkSize~2048_chunkOverlap~30 How many docs were retrieved: 4 questions asked: 1000 Right Answers: 224 
+
+Used db: ./databases/FAISS-DB_embeddingModel~paraphrase-MiniLM-L3-v2_chunkSize~4096_chunkOverlap~30 How many docs were retrieved: 1 questions asked: 1000 Right Answers: 200 
+Used db: ./databases/FAISS-DB_embeddingModel~paraphrase-MiniLM-L3-v2_chunkSize~4096_chunkOverlap~30 How many docs were retrieved: 2 questions asked: 1000 Right Answers: 202 
+
+Used db: ./databases/FAISS-DB_embeddingModel~paraphrase-MiniLM-L3-v2_chunkSize~8192_chunkOverlap~30 How many docs were retrieved: 1 questions asked: 1000 Right Answers: 224 
+
+What i did now: modified the generation parameters and made the evidence more understandable by concatenating it not all but seperating the peaces of evidence
+Well continue with this setup because it performed best: Used db: ./databases/FAISS-DB_embeddingModel~paraphrase-MiniLM-L3-v2_chunkSize~1024_chunkOverlap~30 How many docs were retrieved: 8 questions asked: 1000 Right Answers: 233  
