@@ -88,7 +88,7 @@ def embedder(chunk_size, chunk_overlap):
     db.save_local(INDEX_PATH)
     print("Index saved.")
 
-if __name__ == "__main__":
+# if __name__ == "__main__":
     #embedder(512,30)
     #embedder(2048,30)
     #embedder(4096,30)
