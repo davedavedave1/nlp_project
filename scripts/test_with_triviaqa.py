@@ -26,15 +26,15 @@ def normalize_answer(s):#taken from https://github.com/mandarjoshi90/triviaqa/bl
     return white_space_fix(remove_articles(handle_punc(lower(replace_underscore(s))))).strip()
 
 
-def test_with_triviaqa(file_path, path_to_db, how_many_docs, debug=False):
+def test_with_triviaqa(file_path, path_to_db, how_many_docs, use_reranker, debug=False):
     # Open and load the JSON file
     with open(file_path, "r", encoding="utf-8") as f:
         data = json.load(f)
 
     questionsAsked = questionsRight = questionsWrong = 0
-    rag = Rag_system(path_to_db,how_many_docs,debug=debug)
+    rag = Rag_system(path_to_db,how_many_docs,use_reranker, debug=debug)
 
-    for i, item in enumerate(data["Data"][:5]):
+    for i, item in enumerate(data["Data"][:1000]):
         if debug:
             print(item["Question"])
             print(item["Answer"]["NormalizedAliases"])#Maybe we dont have to take both => Take a look at the paper/docs of triviaqa
@@ -56,18 +56,18 @@ def test_with_triviaqa(file_path, path_to_db, how_many_docs, debug=False):
         print("questions asked: "+str(questionsAsked)+" Right Answers: "+str(questionsRight))
 
     print("questions asked: "+str(questionsAsked)+" Right Answers: "+str(questionsRight))
-    return "Benutzte db: "+str(path_to_db)+" Wieviele Documents werden retrieved: "+str(how_many_docs)+" questions asked: "+str(questionsAsked)+" Right Answers: "+str(questionsRight)
+    return "Used db: "+str(path_to_db)+" How many docs were retrieved: "+str(how_many_docs)+" questions asked: "+str(questionsAsked)+" Right Answers: "+str(questionsRight)
     
 
     
 
 if __name__ == "__main__":
-    #"./databases/FAISS-DB_embeddingModel~paraphrase-MiniLM-L3-v2_chunkSize~1024_chunkOverlap~30"
-    testfile="../necessary_parts_triviaqa/wikipedia-development_new.json"
-    prefix_path_to_db="../databases/FAISS-DB_embeddingModel~paraphrase-MiniLM-L3-v2_chunkSize~"
+    #You have to run this script from the main directory so that the file paths are correct.
+    testfile="./necessary_parts_triviaqa/wikipedia-development_new.json"
+    prefix_path_to_db="./databases/FAISS-DB_embeddingModel~paraphrase-MiniLM-L3-v2_chunkSize~"
     suffix_path_to_db="_chunkOverlap~30"
 
-    print(test_with_triviaqa(testfile, prefix_path_to_db + "1024" + suffix_path_to_db, 8, debug=True) + " \n")
+    print(test_with_triviaqa(testfile, prefix_path_to_db + "1024" + suffix_path_to_db, 8, False, debug=True) + " \n")
 
     # res=[]
 

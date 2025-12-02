@@ -56,16 +56,7 @@ class Flan_t5(Generator):
          prompt = BASE_PROMPT + "\nContext: " + evidence + "Question: " + question
 
          inputs = self.tokenizer(prompt, return_tensors="pt").to(self.model.device)
-         outputs = self.model.generate(**inputs,
-                                       max_length=5,  # keep answers extremely short
-                                       min_length=1,
-                                       num_beams=1,  # no beam search → faster + more deterministic
-                                       temperature=0.0,  # fully deterministic
-                                       top_p=1.0,  # disable sampling
-                                       top_k=0,  # disable sampling
-                                       repetition_penalty=1.0,  # avoid distortions
-                                       no_repeat_ngram_size=2,  # avoid accidental repeats
-                                       )
+         outputs = self.model.generate(**inputs, max_new_tokens=100)
 
          return self.tokenizer.decode(outputs[0], skip_special_tokens=True)
 
