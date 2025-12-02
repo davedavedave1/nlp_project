@@ -17,6 +17,12 @@ class Retriever:
         self.retriever = self.db.as_retriever(search_type="similarity",
                                               search_kwargs={'k': how_many_docs})
 
+        #   - search_type="similarity" (current default). Returns the top‑k closest vectors, which you already have.
+        #   - search_type="mmr" (Max Marginal Relevance). Still uses the same embeddings and FAISS index, but it re-ranks
+        #       the hits to maximize diversity, helping when near-duplicates crowd the top results.
+        #   - search_type="similarity_score_threshold". Returns only passages whose cosine score clears a threshold;
+        #       keeps quality high at the expense of variable set sizes.
+
 
         print("Retriever loaded.")
         

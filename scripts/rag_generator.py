@@ -6,185 +6,130 @@ from langchain_huggingface import HuggingFaceEndpoint, ChatHuggingFace
 from transformers import AutoTokenizer, AutoModelForQuestionAnswering, AutoModelForSeq2SeqLM, BitsAndBytesConfig
 from langchain_core.messages import HumanMessage, SystemMessage
 import torch
+from abc import ABC, abstractmethod
 
-
-load_dotenv()  
-
+load_dotenv()
 api_key = os.getenv("OPENAI_API_KEY")
+BASE_PROMPT = """You are a precise assistant for a retrieval-augmented system. 
+              Answer the user's question strictly based on the provided context. 
+              Do NOT add any information that is not in the context. 
+              If the answer is not present in the context, reply exactly 'I don't know'. 
+              Do NOT provide explanations or extra commentary.
+              Answer concisely and only with the answer."""
 
 
+class Generator(ABC):
+    def __init__(self, debug=False):
+        self.debug = debug
 
-class Generator:
-    def __init__(self):
-        
-        
-        print("Loading Generator...")
+    @abstractmethod
+    def run(self, question, evidence):
+         pass
 
-
-
-        #flan-t5-large
-
-        
-        print("Loading google/flan-t5-large Generator...")
+    def _log(self, msg):
+        if self.debug:
+            print(msg)
 
 
-        bnb_config = BitsAndBytesConfig(
-            load_in_8bit=True,      # or load_in_4bit=True
-            llm_int8_threshold=6.0,
-            llm_int8_has_fp16_weight=False,
-        )
+class Flan_t5(Generator):
+     def __init__(self, debug=False):
+         super().__init__(debug=debug)
+         print("Loading google/flan-t5-large Generator...")
 
-        flan_t5_large_model_name = "google/flan-t5-small"
+         bnb_config = BitsAndBytesConfig(
+             load_in_8bit=True,  # or load_in_4bit=True
+             llm_int8_threshold=6.0,
+             llm_int8_has_fp16_weight=False,
+         )
 
-        self.flan_t5_large_tokenizer = AutoTokenizer.from_pretrained(flan_t5_large_model_name)
-        self.flan_t5_large_model = AutoModelForSeq2SeqLM.from_pretrained(
-                                                                            flan_t5_large_model_name,
-                                                                            quantization_config=bnb_config,        # OR load_in_4bit=True (requires bitsandbytes >= 0.39)
-                                                                        )
-        print("google/flan-t5-large Generator loaded.")
+         flan_t5_large_model_name = "google/flan-t5-small"
+
+         self.tokenizer = AutoTokenizer.from_pretrained(flan_t5_large_model_name)
+         self.model = AutoModelForSeq2SeqLM.from_pretrained(
+             flan_t5_large_model_name,
+             quantization_config=bnb_config,  # OR load_in_4bit=True (requires bitsandbytes >= 0.39)
+         )
+         print("google/flan-t5-large Generator loaded.")
+
+     def flan_t5_large(self, question, evidence):
+         # Example prompt
+         prompt = BASE_PROMPT + "\nContext: " + evidence + "Question: " + question
+
+         inputs = self.tokenizer(prompt, return_tensors="pt").to(self.model.device)
+         outputs = self.model.generate(**inputs, max_new_tokens=100)
+
+         return self.tokenizer.decode(outputs[0], skip_special_tokens=True)
+
+     def run(self, question, evidence):
+         self._log("Generator loading...")
+         torch.cuda.empty_cache()
+         answer = self.flan_t5_large(question, evidence)
+         torch.cuda.empty_cache()
+         self._log("Generator done.")
+         return answer
 
 
-        #longformer
+class Longformer(Generator):
+    def __init__(self, debug=False):
+        super().__init__(debug=debug)
         print("Loading longform Generator...")
-        
-        self.longformer_tokenizer = AutoTokenizer.from_pretrained("allenai/longformer-large-4096-finetuned-triviaqa")
-        self.longformer_model = AutoModelForQuestionAnswering.from_pretrained("allenai/longformer-large-4096-finetuned-triviaqa")
+        self.tokenizer = AutoTokenizer.from_pretrained("allenai/longformer-large-4096-finetuned-triviaqa")
+        self.model = AutoModelForQuestionAnswering.from_pretrained("allenai/longformer-large-4096-finetuned-triviaqa")
         print("Longform Generator Loaded...")
 
+    def longformer(self, question, evidence):
+        encoding = self.tokenizer(question, evidence, return_tensors="pt")
+        input_ids = encoding["input_ids"]
 
+        # default is local attention everywhere
+        # the forward method will automatically set global attention on question tokens
 
+        attention_mask = encoding["attention_mask"]
+        outputs = self.model(input_ids, attention_mask=attention_mask)
 
+        start_logits = outputs.start_logits
+        end_logits = outputs.end_logits
 
-
-        
-        print("Loading ChatGPT-5 Nano Generator...")
-
-        # Initialize OpenAI client
-        self.client = OpenAI()
-
-        # Model name (class = Mistral)
-        self.model_name = "gpt-5-nano"
-
-        print("ChatGPT-5 Nano Generator Loaded.")
-
-        print("Generator Loaded.")
+        all_tokens = self.tokenizer.convert_ids_to_tokens(input_ids[0].tolist())
+        answer_tokens = all_tokens[torch.argmax(start_logits): torch.argmax(end_logits) + 1]
+        answer = self.tokenizer.decode(
+        self.tokenizer.convert_tokens_to_ids(answer_tokens)
+        )
+        return answer
 
     def run(self, question, evidence):
-        #print("Generator working...")
-
-        # answer = longformer(self.longformer_tokenizer, self.longformer_model, question, evidence)
-
-        # answer=five_nano(self,question,evidence)
-        torch.cuda.empty_cache()
-        answer = flan_t5_large(self.flan_t5_large_tokenizer, self.flan_t5_large_model, question, evidence)
-        torch.cuda.empty_cache()
-
-        #print("Generator done...")
+        self._log("Generator loading...")
+        answer = self.longformer(question, evidence)
+        self._log("Generator done.")
         return answer
 
 
-def five_nano(self, question, evidence):
-    try:
-        response = self.client.chat.completions.create(
-            model=self.model_name,
-            messages=[
-                {
-                    "role": "system",
-                    "content": (
-                        "You are a precise assistant for a retrieval-augmented system. "
-                        "Answer the user's question strictly based on the provided context. "
-                        "Do NOT add any information that is not in the context. "
-                        "If the answer is not present in the context, reply exactly 'I don't know'. "
-                        "Do NOT provide explanations or extra commentary. "
-                        "Answer concisely and only with the answer."
-                        
-                    )
-                },
-                {
-                    "role": "user",
-                    "content": (
-                        f"Context: {evidence}\n\n"
-                        f"Question: {question}"
-                    )
-                }
-            ],
-            max_completion_tokens=1000,  # short limit to avoid extra text
-            top_p=1.0,        # use full probability distribution
-            n=1               # one response only
-            )
-        #print("Generator done")
-        #print(response.choices[0])
-        return response.choices[0].message.content
+class Five_nano(Generator):
+     # Necessary OPENAI_API_KEY set up as an enviroment variable
+     def __init__(self, debug=False):
+         super().__init__(debug=debug)
+         print("Loading ChatGPT-5 Nano Generator...")
+         self.client = OpenAI()
+         self.model_name = "gpt-5-nano"
+         print("ChatGPT-5 Nano Generator Loaded.")
 
-    except Exception as e:
-        return f"Error connecting to ChatGPT-5 Nano: {e}"
+     def run(self, question, evidence):
+         self._log("Generator loading...")
+         try:
+             response = self.client.chat.completions.create(
+                 model=self.model_name,
+                 messages=[
+                     {"role": "system", "content": BASE_PROMPT},
+                     {"role": "user", "content": (f"Context: {evidence}\n\n"
+                                                  f"Question: {question}")}
+                 ],
+                 max_completion_tokens=1000,  # short limit to avoid extra text
+                 top_p=1.0,  # use full probability distribution
+                 n=1  # one response only
+             )
+             self._log("Generator done.")
+             return response.choices[0].message.content
 
-
-
-def longformer(tokenizer, model, question, evidence):
-    
-
-    #print("Lonngformer got this Question and Evidence: ("+question+","+evidence+")")
-
-    encoding = tokenizer(question, evidence, return_tensors="pt")
-
-    input_ids = encoding["input_ids"]
-
-    # default is local attention everywhere
-
-    # the forward method will automatically set global attention on question tokens
-
-    attention_mask = encoding["attention_mask"]
-
-    outputs = model(input_ids, attention_mask=attention_mask)
-
-    start_logits = outputs.start_logits
-    end_logits = outputs.end_logits
-
-    all_tokens = tokenizer.convert_ids_to_tokens(input_ids[0].tolist())
-
-    answer_tokens = all_tokens[torch.argmax(start_logits) : torch.argmax(end_logits) + 1]
-
-    answer = tokenizer.decode(
-
-        tokenizer.convert_tokens_to_ids(answer_tokens)
-
-    )  # remove space prepending space token
-    return answer
-
-def flan_t5_large(tokenizer, model, question, evidence):
-    # Example prompt
-    prompt = """You are a precise assistant for a retrieval-augmented system. 
-                Answer the user's question strictly based on the provided context. 
-                Do NOT add any information that is not in the context. 
-                If the answer is not present in the context, reply exactly 'I don't know'. 
-                Do NOT provide explanations or extra commentary.
-                Answer concisely and only with the answer.
-                Context: """+ evidence + "Question: "+ question
-                        
-
-    inputs = tokenizer(prompt, return_tensors="pt").to(model.device)
-    outputs = model.generate(**inputs,
-                                max_length=5,            # keep answers extremely short
-                                min_length=1,
-                                num_beams=1,             # no beam search → faster + more deterministic
-                                temperature=0.0,         # fully deterministic
-                                top_p=1.0,               # disable sampling
-                                top_k=0,                 # disable sampling
-                                repetition_penalty=1.0,  # avoid distortions
-                                no_repeat_ngram_size=2,  # avoid accidental repeats
-                            )
-
-    return tokenizer.decode(outputs[0], skip_special_tokens=True)
-
-
-
-
-            
-        
-        
-        
-
-
-
+         except Exception as e:
+             return f"Error connecting to ChatGPT-5 Nano: {e}"
         

@@ -1,8 +1,9 @@
 # Load model directly
 from transformers import AutoTokenizer, AutoModelForQuestionAnswering
 import torch
-from rag_generator import Generator
+from rag_generator import Generator, Flan_t5, Longformer
 from retriever import Retriever
+from reranker import Reranker
 
 test_evidence_no_information="""In the thirty-seventh cycle of the Lumerian Calendar, long before the Outer Winds were domesticated, scholars of the crystalline city of Varanthis convened to address an unusual discovery: a resonance echo pulsing beneath the moonless sky. Unlike the ordinary sky-hums that wandered between the upper cloud reefs, this echo exhibited a double inversion pattern—an oscillation that folded in on itself every eight heartbeats of the planet. The phenomenon brought concern, yet also excitement, for it indicated that the Veiled Lattice—the metaphysical framework many believed to be purely theoretical—had begun to drift outward.
 
@@ -31,34 +32,43 @@ And though no one could prove it, many sensed that the Veiled Lattice, now stead
 
 
 class Rag_system:
-    
-    def __init__(self, path_to_db, how_many_docs):
+    def __init__(self, path_to_db, how_many_docs, use_reranker, debug=False):
         print("Loading RAG-System...")
-        self.retr = Retriever(path_to_db, how_many_docs)#"./databases/FAISS-DB_embeddingModel~paraphrase-MiniLM-L3-v2_chunkSize~1024_chunkOverlap~30"
-        self.gen = Generator()
+        self.use_reranker=use_reranker
+        self.debug = debug
+        self.retr = Retriever(path_to_db, how_many_docs)
+        self.gen = Flan_t5(debug=debug)
+        self.reranker = Reranker()
         print("RAG-System loaded...")
 
+    def _log(self, msg):
+        if self.debug:
+            print(msg)
+
     def run(self, question):
-        print("Getting Evidence...")
+        self._log("Getting Evidence...")
         evidence = self.retr.run(question)
+
+        if self.use_reranker:
+            evidence = self.reranker.run(evidence, question)
+
         evidence_content = [doc.page_content for doc in evidence]
         evidence_concat = " ".join(evidence_content)
         comment="""evidence_concat = "\n".join(
             f"Evidencedocument {i+1}: {text}"
             for i, text in enumerate(evidence_content)
         )"""
-        print("Evidence collected")
-        #answer = generator(question, evidence)
-        #print("This is the evidence we are working with: "+evidence_concat)
+        self._log("Evidence collected")
+        self._log("This is the evidence we are working with: "+evidence_concat)
 
-        print("Generating answer...")
+        self._log("Generating answer...")
         answer= self.gen.run(question, evidence_concat)
-        print("Answer generated.")
-        #print("This is the answer: "+answer)
+        self._log("Answer generated.")
+        self._log("This is the answer: "+answer)
         return answer
 
 
 #just for testing
 if __name__ == "__main__":
-    rag = Rag_system()
+    rag = Rag_system("../databases/FAISS-DB_embeddingModel~paraphrase-MiniLM-L3-v2_chunkSize~1024_chunkOverlap~30", 8)
     print("Answer: "+rag.run("What is the capital of france?"))
