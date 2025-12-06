@@ -40,7 +40,7 @@ class Retriever_with_reranker:
     
 
 
-def test_retriever(file_path, path_to_db, how_many_docs,how_many_docs_after_reranker, use_reranker, debug=False):
+def test_retriever_and_reranker(file_path, path_to_db, how_many_docs,how_many_docs_after_reranker, use_reranker, debug=False):
     # Open and load the JSON file
     with open(file_path, "r", encoding="utf-8") as f:
         data = json.load(f)
@@ -85,4 +85,4 @@ if __name__ == "__main__":
     testfile="./necessary_parts_triviaqa/wikipedia-development_new.json"
     prefix_path_to_db="./databases/FAISS-DB_embeddingModel~paraphrase-MiniLM-L3-v2_chunkSize~"
     suffix_path_to_db="_chunkOverlap~30_WITH_METADATA"
-    test_retriever(testfile, prefix_path_to_db + "1024" + suffix_path_to_db,64, 8, True, debug=False)
+    test_retriever_and_reranker(testfile, prefix_path_to_db + "1024" + suffix_path_to_db,64, 8, True, debug=False)
