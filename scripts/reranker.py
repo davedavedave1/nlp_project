@@ -19,6 +19,7 @@ class Reranker:
         return list(kept_evidence), list(kept_scores)
 
 
+
 # _____________________________________
 # print("starting reranker 1")
 #

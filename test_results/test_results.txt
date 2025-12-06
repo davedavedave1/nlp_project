@@ -120,4 +120,14 @@ Used db: ./databases/FAISS-DB_embeddingModel~paraphrase-MiniLM-L3-v2_chunkSize~4
 Used db: ./databases/FAISS-DB_embeddingModel~paraphrase-MiniLM-L3-v2_chunkSize~8192_chunkOverlap~30 How many docs were retrieved: 1 questions asked: 1000 Right Answers: 224 
 
 What i did now: modified the generation parameters and made the evidence more understandable by concatenating it not all but seperating the peaces of evidence
-Well continue with this setup because it performed best: Used db: ./databases/FAISS-DB_embeddingModel~paraphrase-MiniLM-L3-v2_chunkSize~1024_chunkOverlap~30 How many docs were retrieved: 8 questions asked: 1000 Right Answers: 233  
+Well continue with this setup because it performed best: Used db: ./databases/FAISS-DB_embeddingModel~paraphrase-MiniLM-L3-v2_chunkSize~1024_chunkOverlap~30 How many docs were retrieved: 8 questions asked: 1000 Right Answers: 233 
+
+
+
+with mmr instead of similarity: Used db: ./databases/FAISS-DB_embeddingModel~paraphrase-MiniLM-L3-v2_chunkSize~1024_chunkOverlap~30 How many docs were retrieved: 8 questions asked: 1000 Right Answers: 210
+
+
+
+
+with reranker: test_with_triviaqa(testfile, prefix_path_to_db + "256" + suffix_path_to_db,64, 16, True, debug=False)
+Used db: ./databases/FAISS-DB_embeddingModel~paraphrase-MiniLM-L3-v2_chunkSize~256_chunkOverlap~30 How many docs were retrieved: 64 questions asked: 1000 Right Answers: 287

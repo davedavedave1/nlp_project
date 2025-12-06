@@ -34,7 +34,6 @@ class Generator(ABC):
 class Flan_t5(Generator):
      def __init__(self, debug=False):
          super().__init__(debug=debug)
-         print("Loading google/flan-t5-large Generator...")
 
          bnb_config = BitsAndBytesConfig(
              load_in_8bit=True,  # or load_in_4bit=True

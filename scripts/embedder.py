@@ -5,12 +5,9 @@ from langchain_core.documents import Document
 from load_data import load_data
 import torch  # ADD THIS
 
-def embedder(chunk_size, chunk_overlap):
+def embedder(chunk_size, chunk_overlap, reduced_size):
     docs = load_data("necessary_parts_triviaqa/evidence/wikipedia")
     embedding_model_name = 'paraphrase-MiniLM-L3-v2'  # CHANGE: Faster model
-    chunk_size = chunk_size#256
-    chunk_overlap = chunk_overlap#30
-    reduced_size = False
     test_run_string = ""
     
     BATCH_SIZE = 2000  # Process 10k chunks at a time (adjust based on your RAM)
@@ -33,9 +30,21 @@ def embedder(chunk_size, chunk_overlap):
     
     print(f"Total documents loaded: {len(documents)}")
     
-    splitter = RecursiveCharacterTextSplitter(chunk_size=chunk_size, chunk_overlap=chunk_overlap)
+    splitter = RecursiveCharacterTextSplitter(
+        chunk_size=chunk_size,
+        chunk_overlap=chunk_overlap
+    )
+
     chunked_docs = splitter.split_documents(documents)
+
+    # --- Add filename + chunk index to each chunk ---
+    for i, chunk in enumerate(chunked_docs):
+        filename = chunk.metadata.get("filename", "unknown_file")
+        chunk.metadata["chunk_index"] = i
+        chunk.metadata["chunk_id"] = f"{filename}_chunk_{i}"
+
     print(f"Total chunks created: {len(chunked_docs)}")
+
     
     # ADD: GPU Configuration
     device = 'cuda' if torch.cuda.is_available() else 'cpu'
@@ -83,14 +92,16 @@ def embedder(chunk_size, chunk_overlap):
     
     print(f"Database created with {db.index.ntotal} vectors")
     
-    INDEX_PATH = f"databases/FAISS-DB_embeddingModel~{embedding_model_name}_chunkSize~{chunk_size}_chunkOverlap~{chunk_overlap}{test_run_string}"
+    INDEX_PATH = f"databases/FAISS-DB_embeddingModel~{embedding_model_name}_chunkSize~{chunk_size}_chunkOverlap~{chunk_overlap}{test_run_string}_WITH_METADATA"
     print(f"Saving index to {INDEX_PATH}...")
     db.save_local(INDEX_PATH)
     print("Index saved.")
 
-# if __name__ == "__main__":
+if __name__ == "__main__":
+    #embedder(256,30)
     #embedder(512,30)
-    #embedder(2048,30)
-    #embedder(4096,30)
-    #embedder(8192,30)
+    embedder(1024,30)
+    embedder(2048,30)
+    embedder(4096,30)
+    embedder(8192,30)
     #embedder(128,30)

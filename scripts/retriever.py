@@ -25,7 +25,7 @@ class Retriever:
 
 
         print("Retriever loaded.")
-        
+
         comment="""
         print("Loading google/flan-t5 Generator for the Retriever...")
 

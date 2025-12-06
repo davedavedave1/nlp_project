@@ -26,13 +26,13 @@ def normalize_answer(s):#taken from https://github.com/mandarjoshi90/triviaqa/bl
     return white_space_fix(remove_articles(handle_punc(lower(replace_underscore(s))))).strip()
 
 
-def test_with_triviaqa(file_path, path_to_db, how_many_docs, use_reranker, debug=False):
+def test_with_triviaqa(file_path, path_to_db, how_many_docs,how_many_docs_after_reranker, use_reranker, debug=False):
     # Open and load the JSON file
     with open(file_path, "r", encoding="utf-8") as f:
         data = json.load(f)
 
     questionsAsked = questionsRight = questionsWrong = 0
-    rag = Rag_system(path_to_db,how_many_docs,use_reranker, debug=debug)
+    rag = Rag_system(path_to_db,how_many_docs,how_many_docs_after_reranker,use_reranker, debug=debug)
 
     for i, item in enumerate(data["Data"][:1000]):
         if debug:
@@ -67,7 +67,7 @@ if __name__ == "__main__":
     prefix_path_to_db="./databases/FAISS-DB_embeddingModel~paraphrase-MiniLM-L3-v2_chunkSize~"
     suffix_path_to_db="_chunkOverlap~30"
 
-    print(test_with_triviaqa(testfile, prefix_path_to_db + "1024" + suffix_path_to_db, 8, False, debug=True) + " \n")
+    print(test_with_triviaqa(testfile, prefix_path_to_db + "256" + suffix_path_to_db,256, 32, True, debug=False) + " \n")
 
     # res=[]
 

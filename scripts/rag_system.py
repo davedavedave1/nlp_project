@@ -32,13 +32,16 @@ And though no one could prove it, many sensed that the Veiled Lattice, now stead
 
 
 class Rag_system:
-    def __init__(self, path_to_db, how_many_docs, use_reranker, debug=False):
+    def __init__(self, path_to_db, how_many_docs, how_many_docs_after_reranker, use_reranker, debug=False):
         print("Loading RAG-System...")
+        if not use_reranker:
+            how_many_docs=how_many_docs_after_reranker
         self.use_reranker=use_reranker
         self.debug = debug
         self.retr = Retriever(path_to_db, how_many_docs)
         self.gen = Flan_t5(debug=debug)
         self.reranker = Reranker()
+        self.how_many_docs_after_reranker= how_many_docs_after_reranker
         print("RAG-System loaded...")
 
     def _log(self, msg):
@@ -50,9 +53,9 @@ class Rag_system:
         evidence = self.retr.run(question)
 
         if self.use_reranker:
-            evidence = self.reranker.run(evidence, question)
+            evidence = self.reranker.run(evidence, question,self.how_many_docs_after_reranker)
 
-        evidence_content = [doc.page_content for doc in evidence]
+        evidence_content = [doc.page_content for doc in (evidence)]
         evidence_concat = " ".join(evidence_content)
         comment="""evidence_concat = "\n".join(
             f"Evidencedocument {i+1}: {text}"
