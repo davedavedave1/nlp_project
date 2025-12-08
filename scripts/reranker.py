@@ -1,9 +1,14 @@
 from FlagEmbedding import FlagReranker
 from sentence_transformers import CrossEncoder
+import torch
 
 class Reranker:
     def __init__(self):
-        self.model = CrossEncoder('cross-encoder/ms-marco-MiniLM-L4-v2')
+        self.device = 'cuda' if torch.cuda.is_available() else 'cpu'
+        print(f"Using device for reranker: {self.device}")
+        if self.device == 'cuda':
+            print(f"GPU: {torch.cuda.get_device_name(0)}")
+        self.model = CrossEncoder('cross-encoder/ms-marco-MiniLM-L4-v2', device=self.device)
 
     def run(self, evidence, question, eliminate=True):
         pairs = [

@@ -32,7 +32,7 @@ And though no one could prove it, many sensed that the Veiled Lattice, now stead
 
 
 class Rag_system:
-    def __init__(self, path_to_db, how_many_docs, how_many_docs_after_reranker, use_reranker, debug=False):
+    def __init__(self, path_to_db, how_many_docs, how_many_docs_after_reranker, use_reranker=False, debug=False):
         print("Loading RAG-System...")
         if not use_reranker:
             how_many_docs=how_many_docs_after_reranker
@@ -73,5 +73,5 @@ class Rag_system:
 
 #just for testing
 if __name__ == "__main__":
-    rag = Rag_system("../databases/FAISS-DB_embeddingModel~paraphrase-MiniLM-L3-v2_chunkSize~1024_chunkOverlap~30", 8)
+    rag = Rag_system("../databases/FAISS-DB_embeddingModel~paraphrase-MiniLM-L3-v2_chunkSize~1024_chunkOverlap~30",8, 8, debug=True)
     print("Answer: "+rag.run("What is the capital of france?"))

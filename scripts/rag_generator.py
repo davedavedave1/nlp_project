@@ -35,35 +35,47 @@ class Flan_t5(Generator):
      def __init__(self, debug=False):
          super().__init__(debug=debug)
 
-         bnb_config = BitsAndBytesConfig(
-             load_in_8bit=True,  # or load_in_4bit=True
-             llm_int8_threshold=6.0,
-             llm_int8_has_fp16_weight=False,
-         )
+         self.device = 'cuda' if torch.cuda.is_available() else 'cpu'
+         print(f"Using device: {self.device}")
+         if self.device == 'cuda':
+             print(f"GPU: {torch.cuda.get_device_name(0)}")
+
+         model_kwargs = {}
+         if self.device == 'cuda':
+             model_kwargs["quantization_config"] = BitsAndBytesConfig(
+                 load_in_8bit=True,  # or load_in_4bit=True
+                 llm_int8_threshold=6.0,
+                 llm_int8_has_fp16_weight=False,
+             )
+             model_kwargs["device_map"] = "auto"
 
          flan_t5_large_model_name = "google/flan-t5-small"
 
          self.tokenizer = AutoTokenizer.from_pretrained(flan_t5_large_model_name)
          self.model = AutoModelForSeq2SeqLM.from_pretrained(
              flan_t5_large_model_name,
-             quantization_config=bnb_config,  # OR load_in_4bit=True (requires bitsandbytes >= 0.39)
+             **model_kwargs
          )
+         if self.device != 'cuda':
+             self.model.to(self.device)
          print("google/flan-t5-large Generator loaded.")
 
      def flan_t5_large(self, question, evidence):
          # Example prompt
          prompt = BASE_PROMPT + "\nContext: " + evidence + "Question: " + question
 
-         inputs = self.tokenizer(prompt, return_tensors="pt").to(self.model.device)
+         inputs = self.tokenizer(prompt, return_tensors="pt").to(self.device)
          outputs = self.model.generate(**inputs, max_new_tokens=100)
 
          return self.tokenizer.decode(outputs[0], skip_special_tokens=True)
 
      def run(self, question, evidence):
          self._log("Generator loading...")
-         torch.cuda.empty_cache()
+         if self.device == 'cuda':
+             torch.cuda.empty_cache()
          answer = self.flan_t5_large(question, evidence)
-         torch.cuda.empty_cache()
+         if self.device == 'cuda':
+             torch.cuda.empty_cache()
          self._log("Generator done.")
          return answer
 
@@ -72,25 +84,32 @@ class Longformer(Generator):
     def __init__(self, debug=False):
         super().__init__(debug=debug)
         print("Loading longform Generator...")
+        self.device = 'cuda' if torch.cuda.is_available() else 'cpu'
+        print(f"Using device: {self.device}")
+        if self.device == 'cuda':
+            print(f"GPU: {torch.cuda.get_device_name(0)}")
         self.tokenizer = AutoTokenizer.from_pretrained("allenai/longformer-large-4096-finetuned-triviaqa")
         self.model = AutoModelForQuestionAnswering.from_pretrained("allenai/longformer-large-4096-finetuned-triviaqa")
+        self.model.to(self.device)
         print("Longform Generator Loaded...")
 
     def longformer(self, question, evidence):
         encoding = self.tokenizer(question, evidence, return_tensors="pt")
+        inputs = {k: v.to(self.device) for k, v in encoding.items()}
         input_ids = encoding["input_ids"]
 
         # default is local attention everywhere
         # the forward method will automatically set global attention on question tokens
 
-        attention_mask = encoding["attention_mask"]
-        outputs = self.model(input_ids, attention_mask=attention_mask)
+        outputs = self.model(inputs["input_ids"], attention_mask=inputs["attention_mask"])
 
         start_logits = outputs.start_logits
         end_logits = outputs.end_logits
 
         all_tokens = self.tokenizer.convert_ids_to_tokens(input_ids[0].tolist())
-        answer_tokens = all_tokens[torch.argmax(start_logits): torch.argmax(end_logits) + 1]
+        start_index = torch.argmax(start_logits).item()
+        end_index = torch.argmax(end_logits).item()
+        answer_tokens = all_tokens[start_index: end_index + 1]
         answer = self.tokenizer.decode(
         self.tokenizer.convert_tokens_to_ids(answer_tokens)
         )

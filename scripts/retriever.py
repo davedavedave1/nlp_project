@@ -1,13 +1,21 @@
 from langchain_community.vectorstores import FAISS
 from langchain_huggingface import HuggingFaceEmbeddings
 from transformers import AutoTokenizer, AutoModelForQuestionAnswering, AutoModelForSeq2SeqLM, AutoModelForCausalLM, BitsAndBytesConfig
+import torch
 
 
 class Retriever:
     def __init__(self, path_to_db, how_many_docs):
         print("Loading retriever...")
         model_name = path_to_db.split("_")[1].split("~")[1]
-        self.embeddings = HuggingFaceEmbeddings(model_name=model_name)
+        self.device = 'cuda' if torch.cuda.is_available() else 'cpu'
+        print(f"Using device: {self.device}")
+        if self.device == 'cuda':
+            print(f"GPU: {torch.cuda.get_device_name(0)}")
+        self.embeddings = HuggingFaceEmbeddings(
+            model_name=model_name,
+            model_kwargs={'device': self.device}
+        )
 
         self.db = FAISS.load_local(
             path_to_db,
