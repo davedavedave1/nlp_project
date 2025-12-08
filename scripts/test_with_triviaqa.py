@@ -37,7 +37,7 @@ def test_with_triviaqa(file_path, path_to_db, how_many_docs,how_many_docs_after_
     for i, item in enumerate(data["Data"][:1000]):
         if debug:
             print(item["Question"])
-            print(item["Answer"]["NormalizedAliases"])#Maybe we dont have to take both => Take a look at the paper/docs of triviaqa
+            print(item["Answer"]["NormalizedAliases"])
 
         solution=item["Answer"]
         answer = normalize_answer(rag.run(item["Question"])) #put in lowercase and remove spaces in front and end
@@ -67,9 +67,65 @@ if __name__ == "__main__":
     prefix_path_to_db="./databases/FAISS-DB_embeddingModel~paraphrase-MiniLM-L3-v2_chunkSize~"
     suffix_path_to_db="_chunkOverlap~30"
 
-    print(test_with_triviaqa(testfile, prefix_path_to_db + "256" + suffix_path_to_db,256, 32, True, debug=False) + " \n")
 
-    # res=[]
+    res=[]
+
+
+    res.append(test_with_triviaqa(testfile, prefix_path_to_db + "256" + suffix_path_to_db,64, 32, True, debug=False) + " \n")
+    with open("resultswithrerankerbackup1.txt", "w") as t:
+        t.writelines(res)
+    res.append(test_with_triviaqa(testfile, prefix_path_to_db + "512" + suffix_path_to_db,32, 16, True, debug=False) + " \n")
+    with open("resultswithrerankerbackup2.txt", "w") as t:
+        t.writelines(res)
+    res.append(test_with_triviaqa(testfile, prefix_path_to_db + "1024" + suffix_path_to_db,16, 8, True, debug=False) + " \n")
+    with open("resultswithrerankerbackup3.txt", "w") as t:
+        t.writelines(res)
+    res.append(test_with_triviaqa(testfile, prefix_path_to_db + "2048" + suffix_path_to_db,8, 4, True, debug=False) + " \n")
+    with open("resultswithrerankerbackup4.txt", "w") as t:
+        t.writelines(res)
+    res.append(test_with_triviaqa(testfile, prefix_path_to_db + "4096" + suffix_path_to_db,4, 2, True, debug=False) + " \n")
+    with open("resultswithrerankerbackup5.txt", "w") as t:
+        t.writelines(res)
+    res.append(test_with_triviaqa(testfile, prefix_path_to_db + "8192" + suffix_path_to_db,2, 1, True, debug=False) + " \n")
+    with open("resultswithrerankerbackup6.txt", "w") as t:
+        t.writelines(res)
+    res.append(test_with_triviaqa(testfile, prefix_path_to_db + "256" + suffix_path_to_db,128, 32, True, debug=False) + " \n")
+    with open("resultswithrerankerbackup7.txt", "w") as t:
+        t.writelines(res)
+    res.append(test_with_triviaqa(testfile, prefix_path_to_db + "512" + suffix_path_to_db,64, 16, True, debug=False) + " \n")
+    with open("resultswithrerankerbackup8.txt", "w") as t:
+        t.writelines(res)
+    res.append(test_with_triviaqa(testfile, prefix_path_to_db + "1024" + suffix_path_to_db,32, 8, True, debug=False) + " \n")
+    with open("resultswithrerankerbackup9.txt", "w") as t:
+        t.writelines(res)
+    res.append(test_with_triviaqa(testfile, prefix_path_to_db + "2048" + suffix_path_to_db,16, 4, True, debug=False) + " \n")
+    with open("resultswithrerankerbackup10.txt", "w") as t:
+        t.writelines(res)
+    res.append(test_with_triviaqa(testfile, prefix_path_to_db + "4096" + suffix_path_to_db,8, 2, True, debug=False) + " \n")
+    with open("resultswithrerankerbackup11.txt", "w") as t:
+        t.writelines(res)
+    res.append(test_with_triviaqa(testfile, prefix_path_to_db + "8192" + suffix_path_to_db,4, 1, True, debug=False) + " \n")
+    with open("resultswithrerankerbackup12.txt", "w") as t:
+        t.writelines(res)
+    res.append(test_with_triviaqa(testfile, prefix_path_to_db + "256" + suffix_path_to_db,256, 32, True, debug=False) + " \n")
+    with open("resultswithrerankerbackup13.txt", "w") as t:
+        t.writelines(res)
+    res.append(test_with_triviaqa(testfile, prefix_path_to_db + "512" + suffix_path_to_db,128, 16, True, debug=False) + " \n")
+    with open("resultswithrerankerbackup14.txt", "w") as t:
+        t.writelines(res)
+    res.append(test_with_triviaqa(testfile, prefix_path_to_db + "1024" + suffix_path_to_db,64, 8, True, debug=False) + " \n")
+    with open("resultswithrerankerbackup15.txt", "w") as t:
+        t.writelines(res)
+    res.append(test_with_triviaqa(testfile, prefix_path_to_db + "2048" + suffix_path_to_db,32, 4, True, debug=False) + " \n")
+    with open("resultswithrerankerbackup16.txt", "w") as t:
+        t.writelines(res)
+    res.append(test_with_triviaqa(testfile, prefix_path_to_db + "4096" + suffix_path_to_db,16, 2, True, debug=False) + " \n")
+    with open("resultswithrerankerbackup17.txt", "w") as t:
+        t.writelines(res)
+    res.append(test_with_triviaqa(testfile, prefix_path_to_db + "8192" + suffix_path_to_db,8, 1, True, debug=False) + " \n")
+    with open("resultswithrerankerbackup18.txt", "w") as t:
+        t.writelines(res)
+    
 
     #res.append(test_with_triviaqa(testfile,+prefix_path_to_db+"1024"+suffix_path_to_db,16)+" \n")#53988 questions
     #res.append(test_with_triviaqa(testfile,prefix_path_to_db+"1024"+suffix_path_to_db,16)+" \n")

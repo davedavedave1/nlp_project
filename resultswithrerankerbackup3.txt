@@ -1,0 +1,2 @@
+Used db: ./databases/FAISS-DB_embeddingModel~paraphrase-MiniLM-L3-v2_chunkSize~1024_chunkOverlap~30 How many docs were retrieved: 16 questions asked: 1000 Right Answers: 268 
+nach den ersten 2

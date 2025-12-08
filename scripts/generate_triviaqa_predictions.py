@@ -24,8 +24,7 @@ def main():
     with open(TRIVIAQA_DATASET_PATH, 'r', encoding='utf-8') as f:
         data = json.load(f)
 
-    # TriviaQA JSON structure can have "Data" or "Data"->"Question" depending on version
-    # Here we assume top-level "Data" list
+    
     questions = []
     if 'Data' in data:
         for entry in data['Data']:
@@ -34,7 +33,6 @@ def main():
                     "id": entry['QuestionId'],
                     "question": entry['Question']
                 })
-            # some versions may have nested structure
             elif 'Question' in entry and 'QuestionId' not in entry:
                 for q in entry['Question']:
                     questions.append({

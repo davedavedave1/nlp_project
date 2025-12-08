@@ -104,10 +104,9 @@ def embedder(chunk_size, chunk_overlap, reduced_size):
     print("Index saved.")
 
 if __name__ == "__main__":
-    #embedder(256,30)
-    #embedder(512,30)
-    #embedder(1024,30)
+    embedder(256,30, False)
+    embedder(512,30, False)
+    embedder(1024,30, False)
     embedder(2048,30, False)
     embedder(4096,30, False)
     embedder(8192,30, False)
-    #embedder(128,30)
