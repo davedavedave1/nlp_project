@@ -33,8 +33,12 @@ class Retriever:
 
     def run(self, question):
         #print("Retriever working...")
-
-        evidence = self.retriever.invoke(question)
+        if self.device == 'cuda':
+             torch.cuda.empty_cache()
+        with torch.no_grad():
+            evidence = self.retriever.invoke(question)
+        if self.device == 'cuda':
+             torch.cuda.empty_cache()
         #print("Retriever done...")
         return evidence
 

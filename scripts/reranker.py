@@ -11,11 +11,16 @@ class Reranker:
         self.model = CrossEncoder('cross-encoder/ms-marco-MiniLM-L4-v2', device=self.device)
 
     def run(self, evidence, question, eliminate=True):
+        if self.device == 'cuda':
+             torch.cuda.empty_cache()
         pairs = [
             (question, (doc.page_content or doc))
             for doc in evidence
         ]
-        scores = self.model.predict(pairs)
+        with torch.no_grad():
+            scores = self.model.predict(pairs)
+        if self.device == 'cuda':
+             torch.cuda.empty_cache()
         return self.eliminate_worst(evidence,scores)[0] if eliminate else scores
 
     def eliminate_worst(self, evidence, scores, top_n = 4):

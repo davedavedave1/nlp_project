@@ -73,7 +73,8 @@ class Flan_t5(Generator):
          self._log("Generator loading...")
          if self.device == 'cuda':
              torch.cuda.empty_cache()
-         answer = self.flan_t5_large(question, evidence)
+         with torch.no_grad():
+            answer = self.flan_t5_large(question, evidence)
          if self.device == 'cuda':
              torch.cuda.empty_cache()
          self._log("Generator done.")
