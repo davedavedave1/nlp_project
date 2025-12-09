@@ -73,5 +73,5 @@ class Rag_system:
 
 #just for testing
 if __name__ == "__main__":
-    rag = Rag_system("../databases/FAISS-DB_embeddingModel~paraphrase-MiniLM-L3-v2_chunkSize~1024_chunkOverlap~30",8, 8, debug=True)
+    rag = Rag_system("./databases/FAISS-DB_embeddingModel~paraphrase-MiniLM-L3-v2_chunkSize~1024_chunkOverlap~30",8, 8, debug=True)
     print("Answer: "+rag.run("What is the capital of france?"))

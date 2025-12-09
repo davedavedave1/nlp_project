@@ -7,28 +7,7 @@ def load_data(
     recursive: bool = True,
     skip_empty: bool = True,
 ) -> List[Union["langchain.schema.Document", dict]]:
-    """
-    Load text files from a directory (and its subdirectories) and return a list of documents.
-
-    Each document is either:
-      - a langchain.schema.Document (if langchain is installed), or
-      - a dict with keys 'page_content' and 'metadata' otherwise.
-
-    Parameters
-    ----------
-    root_dir
-        Directory containing .txt files or folders with .txt files.
-    extensions
-        Iterable of file extensions to include (default ('.txt',)).
-    recursive
-        If True, walk subdirectories recursively.
-    skip_empty
-        If True, ignore files with empty content after stripping.
-
-    Returns
-    -------
-    List of Document-like objects ready for .split_documents(...)
-    """
+    
     root = Path(root_dir).expanduser().resolve()
     if not root.exists() or not root.is_dir():
         raise ValueError(f"root_dir must be an existing directory. Got: {root}")
@@ -59,7 +38,6 @@ def load_data(
         except Exception as e:
             # If there's an unreadable file, skip but warn in metadata via placeholder
             text = ""
-            # You can also log here: print(f"Warning: couldn't read {file_path}: {e}")
 
         if skip_empty and not text.strip():
             continue

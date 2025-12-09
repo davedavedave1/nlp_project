@@ -1,7 +1,0 @@
-Benutzte db: ./databases/FAISS-DB_embeddingModel~paraphrase-MiniLM-L3-v2_chunkSize~512_chunkOverlap~30 Wieviele Documents werden retrieved: 2 questions asked: 1000 Right Answers: 197 
-Benutzte db: ./databases/FAISS-DB_embeddingModel~paraphrase-MiniLM-L3-v2_chunkSize~512_chunkOverlap~30 Wieviele Documents werden retrieved: 4 questions asked: 1000 Right Answers: 223 
-Benutzte db: ./databases/FAISS-DB_embeddingModel~paraphrase-MiniLM-L3-v2_chunkSize~512_chunkOverlap~30 Wieviele Documents werden retrieved: 8 questions asked: 1000 Right Answers: 220 
-Benutzte db: ./databases/FAISS-DB_embeddingModel~paraphrase-MiniLM-L3-v2_chunkSize~512_chunkOverlap~30 Wieviele Documents werden retrieved: 1 questions asked: 1000 Right Answers: 170 
-Benutzte db: ./databases/FAISS-DB_embeddingModel~paraphrase-MiniLM-L3-v2_chunkSize~256_chunkOverlap~30 Wieviele Documents werden retrieved: 1 questions asked: 1000 Right Answers: 151 
-Benutzte db: ./databases/FAISS-DB_embeddingModel~paraphrase-MiniLM-L3-v2_chunkSize~256_chunkOverlap~30 Wieviele Documents werden retrieved: 2 questions asked: 1000 Right Answers: 182
-
