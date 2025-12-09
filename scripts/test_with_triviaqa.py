@@ -71,13 +71,13 @@ if __name__ == "__main__":
     res=[]
 
 
-    """
+    
     res.append(test_with_triviaqa(testfile, prefix_path_to_db + "256" + suffix_path_to_db,64, 32, True, debug=False) + " \n")
     with open("resultswithrerankerbackup1.txt", "w") as t:
         t.writelines(res)
     res.append(test_with_triviaqa(testfile, prefix_path_to_db + "512" + suffix_path_to_db,32, 16, True, debug=False) + " \n")
     with open("resultswithrerankerbackup2.txt", "w") as t:
-        t.writelines(res)"""
+        t.writelines(res)
     res.append(test_with_triviaqa(testfile, prefix_path_to_db + "1024" + suffix_path_to_db,16, 8, True, debug=False) + " \n")
     with open("resultswithrerankerbackup3.txt", "w") as t:
         t.writelines(res)
