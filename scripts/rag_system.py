@@ -53,7 +53,7 @@ class Rag_system:
         evidence = self.retr.run(question)
 
         if self.use_reranker:
-            evidence = self.reranker.run(evidence, question,self.how_many_docs_after_reranker)
+            evidence = self.reranker.run(evidence, question, top_n=self.how_many_docs_after_reranker)
 
         evidence_content = [doc.page_content for doc in (evidence)]
         evidence_concat = " ".join(evidence_content)
@@ -73,5 +73,7 @@ class Rag_system:
 
 #just for testing
 if __name__ == "__main__":
-    rag = Rag_system("./databases/FAISS-DB_embeddingModel~paraphrase-MiniLM-L3-v2_chunkSize~1024_chunkOverlap~30",8, 8, debug=True)
+    rag = Rag_system("../databases/FAISS-DB_embeddingModel~paraphrase-MiniLM-L3-v2_chunkSize~1024_chunkOverlap~30",8, 8, debug=True)
     print("Answer: "+rag.run("What is the capital of france?"))
+    print("Answer: " + rag.run("Who won Super Bowl XX?")) # chicago
+    print("Answer: " + rag.run("Which alcohol forms the primary ingredient of a White Lady cocktail??")) # gin
