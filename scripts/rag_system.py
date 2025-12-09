@@ -53,7 +53,7 @@ class Rag_system:
         evidence = self.retr.run(question)
 
         if self.use_reranker:
-            evidence = self.reranker.run(evidence, question,self.how_many_docs_after_reranker)
+            evidence = self.reranker.run(evidence, question, top_k=self.how_many_docs_after_reranker)
 
         evidence_content = [doc.page_content for doc in (evidence)]
         evidence_concat = " ".join(evidence_content)
