@@ -10,20 +10,15 @@ class Reranker:
             print(f"GPU: {torch.cuda.get_device_name(0)}")
         self.model = CrossEncoder('cross-encoder/ms-marco-MiniLM-L4-v2', device=self.device)
 
-    def run(self, evidence, question, eliminate=True):
-        if self.device == 'cuda':
-             torch.cuda.empty_cache()
+    def run(self, evidence, question, top_n=8, eliminate=True):
         pairs = [
             (question, (doc.page_content or doc))
             for doc in evidence
         ]
-        with torch.no_grad():
-            scores = self.model.predict(pairs)
-        if self.device == 'cuda':
-             torch.cuda.empty_cache()
-        return self.eliminate_worst(evidence,scores)[0] if eliminate else scores
+        scores = self.model.predict(pairs)
+        return self.eliminate_worst(evidence,scores,top_n)[0] if eliminate else scores
 
-    def eliminate_worst(self, evidence, scores, top_n = 4):
+    def eliminate_worst(self, evidence, scores, top_n):
         ranked = sorted(zip(scores, evidence), key=lambda pair: pair[0], reverse=True)
         kept_scores, kept_evidence = zip(*ranked[:top_n]) if ranked else ([], [])
         return list(kept_evidence), list(kept_scores)
