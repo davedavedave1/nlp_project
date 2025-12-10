@@ -1,12 +1,24 @@
 import embedder
 import test_with_triviaqa
 from pathlib import Path
+import subprocess
 
-from necessary_parts_triviaqa import create_partition
+ROOT_DIR    = Path(__file__).resolve().parent.parent
+TRIVIA_DIR  = ROOT_DIR / "necessary_parts_triviaqa"
+
+def run_create_partition():
+    print("Running create_partition.py inside:", TRIVIA_DIR)
+    # Run the script exactly as if user executed: python create_partition.py
+    subprocess.run(
+        ["python", "create_partition.py"],
+        cwd=str(TRIVIA_DIR),
+        check=True
+    )
+
 
 if __name__ == "__main__":
     if not Path("necessary_evidence_triviaqa/wikipedia-train_new.json").exists():
-        create_partition.main()
+        run_create_partition()
 
     testfile = "./necessary_parts_triviaqa/wikipedia-development_new.json"
     prefix_path_to_db = "./databases/FAISS-DB_embeddingModel~paraphrase-MiniLM-L3-v2_chunkSize~"
@@ -15,8 +27,8 @@ if __name__ == "__main__":
     chunks = [256, 512, 1024, 2048, 4096, 8192]
 
     for chunk in chunks:
-        if not Path(prefix_path_to_db + chunk + suffix_path_to_db).exists():
-            embedder(chunk,30, False)
+        if not Path(prefix_path_to_db + str(chunk) + suffix_path_to_db).exists():
+            embedder.embedder(chunk,30, False)
 
     res = []
     res.append(
