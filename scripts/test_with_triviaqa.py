@@ -91,9 +91,12 @@ if __name__ == "__main__":
     res.append(test_with_triviaqa(testfile, prefix_path_to_db + "8192" + suffix_path_to_db,2, 1, True, debug=False) + " \n")
     with open("resultswithrerankerbackup6.txt", "w") as t:
         t.writelines(res)
+
+    #     CUT HERE FOR FISRT TEST (measuring the chunk size)
     res.append(test_with_triviaqa(testfile, prefix_path_to_db + "256" + suffix_path_to_db,128, 32, True, debug=False) + " \n")
     with open("resultswithrerankerbackup7.txt", "w") as t:
         t.writelines(res)
+
     res.append(test_with_triviaqa(testfile, prefix_path_to_db + "512" + suffix_path_to_db,64, 16, True, debug=False) + " \n")
     with open("resultswithrerankerbackup8.txt", "w") as t:
         t.writelines(res)
