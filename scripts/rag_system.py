@@ -1,7 +1,7 @@
 # Load model directly
 from transformers import AutoTokenizer, AutoModelForQuestionAnswering
 import torch
-from rag_generator import Generator, Flan_t5, Longformer
+from rag_generator import Generator, Flan_t5, Longformer, Llama3_HighSpeed
 from retriever import Retriever
 from reranker import Reranker
 
@@ -39,7 +39,7 @@ class Rag_system:
         self.use_reranker=use_reranker
         self.debug = debug
         self.retr = Retriever(path_to_db, how_many_docs)
-        self.gen = Flan_t5(debug=debug)
+        self.gen = Llama3_HighSpeed(debug=debug)
         self.reranker = Reranker()
         self.how_many_docs_after_reranker= how_many_docs_after_reranker
         print("RAG-System loaded...")
@@ -73,7 +73,7 @@ class Rag_system:
 
 #just for testing
 if __name__ == "__main__":
-    rag = Rag_system("../databases/FAISS-DB_embeddingModel~paraphrase-MiniLM-L3-v2_chunkSize~1024_chunkOverlap~30",8, 8, debug=True)
+    rag = Rag_system("../databases/FAISS-DB_embeddingModel~paraphrase-MiniLM-L3-v2_chunkSize~1024_chunkOverlap~30_WITH_METADATA",8, 8, debug=True)
     print("Answer: "+rag.run("What is the capital of france?"))
     print("Answer: " + rag.run("Who won Super Bowl XX?")) # chicago
     print("Answer: " + rag.run("Which alcohol forms the primary ingredient of a White Lady cocktail??")) # gin
