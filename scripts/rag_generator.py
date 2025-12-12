@@ -48,17 +48,16 @@ class Llama3_HighSpeed(Generator):
         if not hf_token:
             raise ValueError("HF_TOKEN not set")
 
-        # Check GPU memory to decide config
-        # L4 has ~22GB usable, A100 has 40GB+
+        
         gpu_mem = torch.cuda.get_device_properties(0).total_memory / 1e9 if self.device == 'cuda' else 0
 
         model_id = "meta-llama/Meta-Llama-3-8B-Instruct"
 
-        if gpu_mem > 23:  # A100 or L4 (usually shows as ~22-24GB)
+        if gpu_mem > 23:  
             print(f"High-Performance GPU detected ({gpu_mem:.1f} GB). Loading in native bfloat16...")
             self.model = AutoModelForCausalLM.from_pretrained(
                 model_id,
-                torch_dtype=torch.bfloat16,  # Native precision = FASTEST
+                torch_dtype=torch.bfloat16,  
                 device_map="auto",
                 token=hf_token
             )
@@ -83,7 +82,6 @@ class Llama3_HighSpeed(Generator):
     def run(self, question, evidence):
          self._log("Generator (Llama 3) loading...")
 
-         # 3. Apply Llama 3 specific chat template
          messages = [
              {"role": "system", "content": BASE_PROMPT},
              {"role": "user", "content": f"Context: {evidence}\n\nQuestion: {question}"}
@@ -106,7 +104,7 @@ class Llama3_HighSpeed(Generator):
                  input_ids,
                  max_new_tokens=256,
                  eos_token_id=terminators,
-                 do_sample=True,  # Set False for deterministic results
+                 do_sample=True,  
                  temperature=0.1,
                  top_p=0.9,
              )
