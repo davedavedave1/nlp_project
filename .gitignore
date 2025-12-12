@@ -8,3 +8,5 @@ __pycache__/
 *.pyc
 .idea/
 .env
+scripts/__pycache__/
+*.pyc
