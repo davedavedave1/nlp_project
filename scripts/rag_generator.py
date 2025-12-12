@@ -7,6 +7,12 @@ from transformers import AutoTokenizer, AutoModelForQuestionAnswering, AutoModel
 from langchain_core.messages import HumanMessage, SystemMessage
 import torch
 from abc import ABC, abstractmethod
+from transformers import (
+    AutoTokenizer,
+    AutoModelForQuestionAnswering,
+    AutoModelForSeq2SeqLM,
+    AutoModelForCausalLM
+)
 
 load_dotenv()
 api_key = os.getenv("OPENAI_API_KEY")
@@ -29,6 +35,88 @@ class Generator(ABC):
     def _log(self, msg):
         if self.debug:
             print(msg)
+
+
+class Llama3_HighSpeed(Generator):
+    def __init__(self, debug=False):
+        super().__init__(debug=debug)
+        print("Loading High-Speed Llama-3-8B Generator...")
+
+        self.device = 'cuda' if torch.cuda.is_available() else 'cpu'
+
+        hf_token = os.getenv("HF_TOKEN")
+        if not hf_token:
+            raise ValueError("HF_TOKEN not set")
+
+        # Check GPU memory to decide config
+        # L4 has ~22GB usable, A100 has 40GB+
+        gpu_mem = torch.cuda.get_device_properties(0).total_memory / 1e9 if self.device == 'cuda' else 0
+
+        model_id = "meta-llama/Meta-Llama-3-8B-Instruct"
+
+        if gpu_mem > 23:  # A100 or L4 (usually shows as ~22-24GB)
+            print(f"High-Performance GPU detected ({gpu_mem:.1f} GB). Loading in native bfloat16...")
+            self.model = AutoModelForCausalLM.from_pretrained(
+                model_id,
+                torch_dtype=torch.bfloat16,  # Native precision = FASTEST
+                device_map="auto",
+                token=hf_token
+            )
+        else:
+            print(f"Smaller GPU detected ({gpu_mem:.1f} GB). Loading in 4-bit...")
+            bnb_config = BitsAndBytesConfig(
+                load_in_4bit=True,
+                bnb_4bit_compute_dtype=torch.bfloat16
+            )
+            self.model = AutoModelForCausalLM.from_pretrained(
+                model_id,
+                quantization_config=bnb_config,
+                device_map="auto",
+                token=hf_token
+            )
+
+        self.tokenizer = AutoTokenizer.from_pretrained(model_id, token=hf_token)
+        self.tokenizer.pad_token = self.tokenizer.eos_token
+        print("Generator loaded.")
+
+
+    def run(self, question, evidence):
+         self._log("Generator (Llama 3) loading...")
+
+         # 3. Apply Llama 3 specific chat template
+         messages = [
+             {"role": "system", "content": BASE_PROMPT},
+             {"role": "user", "content": f"Context: {evidence}\n\nQuestion: {question}"}
+         ]
+
+         input_ids = self.tokenizer.apply_chat_template(
+             messages,
+             add_generation_prompt=True,
+             return_tensors="pt"
+         ).to(self.model.device)
+
+         # 4. Generate
+         terminators = [
+             self.tokenizer.eos_token_id,
+             self.tokenizer.convert_tokens_to_ids("<|eot_id|>")
+         ]
+
+         with torch.no_grad():
+             outputs = self.model.generate(
+                 input_ids,
+                 max_new_tokens=256,
+                 eos_token_id=terminators,
+                 do_sample=True,  # Set False for deterministic results
+                 temperature=0.1,
+                 top_p=0.9,
+             )
+
+         # Slice off the input prompt to get just the answer
+         response = outputs[0][input_ids.shape[-1]:]
+         answer = self.tokenizer.decode(response, skip_special_tokens=True)
+
+         self._log("Generator done.")
+         return answer
 
 
 class Flan_t5(Generator):
